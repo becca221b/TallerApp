@@ -1,9 +1,12 @@
 {
   "name": "tallerapp",
+  "private": true,
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "build:domain": "tsc --build domain",
+    "build:backend": "tsc --build backend",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "test": "vitest"

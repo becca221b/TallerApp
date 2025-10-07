@@ -44,6 +44,6 @@
   "files": [],
   "references": [
     {"path": "./domain"},
-    {"path": "./backend"}
+    //{"path": "./apps/backend"}
   ]
 }

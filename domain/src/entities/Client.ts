@@ -3,8 +3,8 @@ export class Client {
         public readonly id: string,
         public clientName: string,
         public phone: string,
-        public email?: string,
-        
+        public address: string,
+        public email?: string,  
     ) {}
 
     updateClient(phone: string, email?: string) {

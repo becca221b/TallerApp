@@ -1,8 +1,8 @@
-export type Role = 'admin' | 'employee' | 'supervisor ';
+export type Role = 'admin' | 'employee' ;
 
 export interface User {
   readonly id: string,
-  name: string,
+  username: string,
   passwordHash: string,
   role: Role,
   email?: string,

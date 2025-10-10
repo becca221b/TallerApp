@@ -1,3 +1,5 @@
+export type employeeType = 'Costurero' | 'Cortador' | 'Supervisor';
+
 export interface Employee {
     readonly id: string,
     name: string,
@@ -5,5 +7,7 @@ export interface Employee {
     documentNumber: string,
     phone: string,
     isActive: boolean,
-    email?: string
+    employeeType: employeeType,
+    username: string,
+    password: string
 }

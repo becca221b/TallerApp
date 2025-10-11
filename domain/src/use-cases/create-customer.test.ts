@@ -15,6 +15,10 @@ describe('Create a customer',()=>{
         
         const savedCustomer = await mockCustomerService.saveCustomer(newCustomer);
         expect(savedCustomer).toEqual(newCustomer);
+        expect(savedCustomer.id).toBe('1');
+        expect(savedCustomer.customerName).toBe('Club Atlético');
+        expect(savedCustomer.phone).toBe(5551234);
+        expect(savedCustomer.address).toBe('Calle Falsa 123');
         expect(mockCustomerService.saveCustomer).toHaveBeenCalledWith(newCustomer);
     });
 

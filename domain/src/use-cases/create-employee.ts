@@ -25,6 +25,12 @@ export class CreateEmployee implements EmployeeService{
         if(!employee.documentNumber || employee.documentNumber.trim() === '') {
             throw new Error('Document number is required');
         }
-        
+      
+        if(!employee.employeeType || employee.employeeType.trim() === '') {
+            throw new Error('Employee type is required');
+        }
+        if(employee.employeeType!= 'Cortador' && employee.employeeType!= 'Costurero' && employee.employeeType!= 'Supervisor'){{
+            throw new Error('Employee type must be Cortador, Costurero, or Supervisor');
+        }}
     }
 }

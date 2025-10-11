@@ -45,6 +45,26 @@ describe('Create an employee',()=>{
         expect(mockEmployeeService.saveEmployee).toHaveBeenCalledWith(savedEmployee);
     });
 
+    describe('Validation errors',()=>{
+        it('should throw error if employeeType is not Cortador, Costurero, or Supervisor', async()=>{
+            const mockEmployeeService = createMockEmployeeService();
+            const createEmployeeUseCase = new (await import('./create-employee')).CreateEmployee(mockEmployeeService);
+
+            const newEmployee: Employee = {
+                id: '1',
+                name: 'Sarah',
+                surname: 'Connor',
+                documentNumber: '00000000',
+                phone: '555-0000',
+                employeeType: 'Manager' as any, // Invalid type
+            }
+
+            const savedEmployee = createEmployeeUseCase.saveEmployee(newEmployee);
+            await expect(savedEmployee).rejects.toThrow('Employee type must be Cortador, Costurero, or Supervisor');
+            expect(mockEmployeeService.saveEmployee).not.toHaveBeenCalled();
+        })
+    })
+
 })
 
 

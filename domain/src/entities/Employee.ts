@@ -6,8 +6,8 @@ export interface Employee {
     surname: string,
     documentNumber: string,
     phone: string,
-    isActive: boolean,
+    isActive?: boolean,
     employeeType: employeeType,
-    username: string,
-    password: string
+    username?: string,
+    password?: string
 }

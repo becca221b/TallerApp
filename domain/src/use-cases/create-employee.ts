@@ -1,7 +1,7 @@
 import { EmployeeService } from "../services/employee-service";
 import { Employee } from "../entities/Employee";
 
-export class CreateEmployee implements EmployeeService{
+export class CreateEmployee {
     constructor(private readonly employeeService: EmployeeService){}
 
     async saveEmployee(employee: Employee): Promise<Employee> {

@@ -4,7 +4,6 @@ export interface Garment {
     id: string,
     name: GarmentType,
     color: string,
-    size: string,
     description?: string,
     price: number,
     imageUrl: string,
@@ -14,5 +13,4 @@ export interface Garment {
     zipper: string,
     pocket: string,
     waist: string,
-    number: number  
 }

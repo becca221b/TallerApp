@@ -1,18 +1,15 @@
-import { Garment } from "./Garment";
+import { OrderDetail } from "./OrderDetail";
 
 export type orderStatus = 'pending' | 'in process' | 'completed' ;
-export type sex = 'F' | 'M';
+
 
 export interface Order{
     id: string,
-    garmentId: string,
     customerId: string,
+    status: 'orderStatus',
+    totalPrice?: number,
+    employeeId: string,
+    orderDetails: OrderDetail[],
     orderDate: Date,
     deliveryDate: Date,
-    status: 'orderStatus',
-    totalPrice: number,
-    employeeId: string,
-    size: string, // VER Types o enums
-    quantity: number,
-    sex: 'sex'
 }

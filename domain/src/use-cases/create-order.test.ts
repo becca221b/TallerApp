@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { createMockOrderService } from "../mocks/mock-order-service";
 import { CreateOrder } from "./create-order";
 import { Order } from "../entities/Order";
+import { OrderDetail, orderSize } from "../entities/OrderDetail";
 
 
 describe('Create an order',()=>{
@@ -15,7 +16,7 @@ describe('Create an order',()=>{
             employeeId: '1',
             orderDetails: [{ id: '1', orderId: '1', quantity: 1, garmentId: '1', size: 'M', sex: 'M', subtotal: 100 }],
             orderDate: new Date(),
-            deliveryDate: new Date()
+            deliveryDate: new Date('2025-11-01')
            
         }
 
@@ -78,5 +79,64 @@ describe('Validation errors on create order',()=>{
         const savedOrder = createOrderUseCase.saveOrder(newOrder);
         await expect(savedOrder).rejects.toThrow('Delivery date must be after order date');
         expect(mockOrderService.saveOrder).not.toHaveBeenCalledWith(newOrder);
+    });
+
+    describe('Should add garments to order details',()=>{
+        it('should add garment to order details', async()=>{
+            const mockOrderService = createMockOrderService();
+            const createOrderUseCase = new CreateOrder(mockOrderService);
+                        
+            const newOrder: Order = {
+                id: '1',
+                customerId: '1',
+                status: 'pending',
+                employeeId: '1',
+                orderDetails: [],
+                orderDate: new Date(),
+                deliveryDate: new Date('2025-11-01')
+            }
+
+            const garmentDetail = {
+                id: '1',
+                orderId: '1',
+                quantity: 1,
+                garmentId: '1',
+                size: 'M' as orderSize,
+                sex: 'M' as 'M',
+                subtotal: 100
+            };
+
+            const updatedOrder = createOrderUseCase.addGarmentToOrder(newOrder, garmentDetail);
+            expect(updatedOrder.orderDetails.length).toBe(1);
+            expect(updatedOrder.orderDetails[0]).toEqual(garmentDetail);
+        });
+
+        it('should throw error when adding invalid garment detail', async()=>{
+            const mockOrderService = createMockOrderService();
+            const createOrderUseCase = new CreateOrder(mockOrderService);
+            
+            const newOrder: Order = {
+                id: '1',
+                customerId: '1',
+                status: 'pending',
+                employeeId: '1',
+                orderDetails: [],
+                orderDate: new Date(),
+                deliveryDate: new Date('2025-11-01')
+            }
+
+            const invalidGarmentDetail = {
+                id: '1',
+                orderId: '1',
+                quantity: 0, // Invalid quantity
+                garmentId: '1',
+                size: 'M' as orderSize,
+                sex: 'M' as 'M',
+                subtotal: 100
+            };
+
+            expect(() => createOrderUseCase.addGarmentToOrder(newOrder, invalidGarmentDetail))
+                .toThrow('Quantity must be greater than 0');
+        });
     });
 });

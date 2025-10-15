@@ -1,12 +1,15 @@
 import { OrderDetail } from "./OrderDetail";
 
-export type orderStatus = 'pending' | 'in process' | 'completed' ;
+export enum OrderStatus {
+    Pending = 'pending',
+    InProcess = 'in process',
+    Completed = 'completed'
+}
 
-
-export interface Order{
+export interface Order {
     id: string,
     customerId: string,
-    status: orderStatus,
+    status?: OrderStatus,
     totalPrice?: number,
     employeeId: string,
     orderDetails: OrderDetail[],

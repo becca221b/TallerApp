@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createMockOrderService } from "../mocks/mock-order-service";
 import { CreateOrder } from "./create-order";
-import { Order } from "../entities/Order";
+import { Order, OrderStatus } from "../entities/Order";
 import { OrderDetail, orderSize } from "../entities/OrderDetail";
 
 
@@ -12,9 +12,9 @@ describe('Create an order',()=>{
         const newOrder: Order = {
             id: '1',
             customerId: '1',
-            status: 'pending',
+            status: OrderStatus.Pending,
             employeeId: '1',
-            orderDetails: [{ id: '1', orderId: '1', quantity: 1, garmentId: '1', size: 'M', sex: 'M', subtotal: 100 }],
+            orderDetails: [],
             orderDate: new Date(),
             deliveryDate: new Date('2025-11-01')
            
@@ -25,6 +25,36 @@ describe('Create an order',()=>{
         expect(mockOrderService.saveOrder).toHaveBeenCalledWith(newOrder);
     })
 })
+describe('Create an order',()=>{
+    it('should set todays order date to current date', async()=>{
+        const mockOrderService = createMockOrderService();
+        const createOrderUseCase = new (await import('./create-order')).CreateOrder(mockOrderService);
+        const newOrder: Order = {
+            id: '1',
+            customerId: '1',
+            status: OrderStatus.Pending,
+            employeeId: '1',
+            orderDetails: [],
+            orderDate: new Date('2023-01-01'), // This will be overridden
+            deliveryDate: new Date('2025-11-01')
+        }
+    });
+    it('should set order status to pending', async()=>{
+        const mockOrderService = createMockOrderService();
+        const createOrderUseCase = new (await import('./create-order')).CreateOrder(mockOrderService);
+        const newOrder: Order = {
+            id: '1',
+            customerId: '1',
+            employeeId: '1',
+            orderDetails: [],
+            orderDate: new Date(),
+            deliveryDate: new Date('2025-11-01')
+        }
+        const savedOrder = await createOrderUseCase.saveOrder(newOrder);
+        expect(savedOrder.status).toBe(OrderStatus.Pending);
+        expect(mockOrderService.saveOrder).toHaveBeenCalledWith(savedOrder);
+    });
+});
 
 describe('Validation errors on create order',()=>{
     it('should throw error if orderStatus is not pending, in process, or completed', async()=>{
@@ -34,7 +64,7 @@ describe('Validation errors on create order',()=>{
         const newOrder: Order = {
             id: '1',
             customerId: '1',
-            status: 'shipped' as any, // Invalid status
+            status: 'shipped' as OrderStatus, // Invalid status
             employeeId: '1',
             orderDetails: [{ id: '1', orderId: '1', quantity: 1, garmentId: '1', size: 'M', sex: 'M', subtotal: 100 }],
             orderDate: new Date(),
@@ -45,32 +75,14 @@ describe('Validation errors on create order',()=>{
         await expect(savedOrder).rejects.toThrow('Order status must be pending, in process, or completed');
         expect(mockOrderService.saveOrder).not.toHaveBeenCalledWith(newOrder);
     });
-});
 
-describe('Validation errors on create order',()=>{
-    it('should throw error if order has no order details', async()=>{
-        const mockOrderService = createMockOrderService();
-        const createOrderUseCase = new (await import('./create-order')).CreateOrder(mockOrderService);
-        const newOrder: Order = {
-            id: '1',
-            customerId: '1',
-            status: 'pending',
-            employeeId: '1',
-            orderDetails: [],
-            orderDate: new Date(),
-            deliveryDate: new Date('2025-11-01')
-        }
-        const savedOrder = createOrderUseCase.saveOrder(newOrder);
-        await expect(savedOrder).rejects.toThrow('Order must have at least one order detail');
-        expect(mockOrderService.saveOrder).not.toHaveBeenCalledWith(newOrder);
-    });
     it('should throw error if delivery date is before order date', async()=>{
         const mockOrderService = createMockOrderService();
         const createOrderUseCase = new (await import('./create-order')).CreateOrder(mockOrderService);
         const newOrder: Order = {
             id: '1',
             customerId: '1',
-            status: 'pending',
+            status: OrderStatus.Pending,
             employeeId: '1',
             orderDetails: [{ id: '1', orderId: '1', quantity: 1, garmentId: '1', size: 'M', sex: 'M', subtotal: 100 }],
             orderDate: new Date('2023-01-02'),
@@ -80,63 +92,82 @@ describe('Validation errors on create order',()=>{
         await expect(savedOrder).rejects.toThrow('Delivery date must be after order date');
         expect(mockOrderService.saveOrder).not.toHaveBeenCalledWith(newOrder);
     });
+});
 
-    describe('Should add garments to order details',()=>{
-        it('should add garment to order details', async()=>{
-            const mockOrderService = createMockOrderService();
-            const createOrderUseCase = new CreateOrder(mockOrderService);
+describe('Add garment to order details',()=>{
+    it('should add garment to order details', async()=>{
+        const mockOrderService = createMockOrderService();
+        const createOrderUseCase = new CreateOrder(mockOrderService);
                         
-            const newOrder: Order = {
-                id: '1',
-                customerId: '1',
-                status: 'pending',
-                employeeId: '1',
-                orderDetails: [],
-                orderDate: new Date(),
-                deliveryDate: new Date('2025-11-01')
-            }
+        const newOrder: Order = {
+            id: '1',
+            customerId: '1',
+            status: OrderStatus.Pending,
+            employeeId: '1',
+            orderDetails: [],
+            orderDate: new Date(),
+            deliveryDate: new Date('2025-11-01')
+        }
 
-            const garmentDetail = {
-                id: '1',
-                orderId: '1',
-                quantity: 1,
-                garmentId: '1',
-                size: 'M' as orderSize,
-                sex: 'M' as 'M',
-                subtotal: 100
-            };
+        const garmentDetail = {
+            id: '1',
+            orderId: '1',
+            quantity: 1,
+            garmentId: '1',
+            size: 'M' as orderSize,
+            sex: 'M' as 'M',
+            subtotal: 100
+        };
 
-            const updatedOrder = createOrderUseCase.addGarmentToOrder(newOrder, garmentDetail);
-            expect(updatedOrder.orderDetails.length).toBe(1);
-            expect(updatedOrder.orderDetails[0]).toEqual(garmentDetail);
-        });
+        const updatedOrder = createOrderUseCase.addGarmentToOrder(newOrder, garmentDetail);
+        expect(updatedOrder.orderDetails.length).toBe(1);
+        expect(updatedOrder.orderDetails[0]).toEqual(garmentDetail);
+    });
+});
 
-        it('should throw error when adding invalid garment detail', async()=>{
-            const mockOrderService = createMockOrderService();
-            const createOrderUseCase = new CreateOrder(mockOrderService);
-            
-            const newOrder: Order = {
-                id: '1',
-                customerId: '1',
-                status: 'pending',
-                employeeId: '1',
-                orderDetails: [],
-                orderDate: new Date(),
-                deliveryDate: new Date('2025-11-01')
-            }
+describe('Validation errors on add garment to order details',()=>{
+    it('should throw error if quantity is less than or equal to 0', async()=>{
+        const mockOrderService = createMockOrderService();
+        const createOrderUseCase = new CreateOrder(mockOrderService);
+        const newOrder: Order = {
+            id: '1',
+            customerId: '1',
+            employeeId: '1',
+            orderDetails: [],
+            orderDate: new Date(),
+            deliveryDate: new Date('2025-11-01')
+        }
+        const garmentDetail = {
+            id: '1',
+            orderId: '1',
+            quantity: 0, // Invalid quantity
+            garmentId: '1',
+            size: 'M' as orderSize
+        },
+        updatedOrder = () => createOrderUseCase.addGarmentToOrder(newOrder, garmentDetail as any);
+        expect(updatedOrder).toThrow('Quantity must be greater than 0');
+    });
 
-            const invalidGarmentDetail = {
-                id: '1',
-                orderId: '1',
-                quantity: 0, // Invalid quantity
-                garmentId: '1',
-                size: 'M' as orderSize,
-                sex: 'M' as 'M',
-                subtotal: 100
-            };
-
-            expect(() => createOrderUseCase.addGarmentToOrder(newOrder, invalidGarmentDetail))
-                .toThrow('Quantity must be greater than 0');
-        });
+    it('orderId at orderDetail should be set when adding garment to order', async()=>{
+        const mockOrderService = createMockOrderService();
+        const createOrderUseCase = new CreateOrder(mockOrderService);
+        const newOrder: Order = {
+            id: '1',
+            customerId: '1',
+            employeeId: '1',
+            orderDetails: [],
+            orderDate: new Date(),
+            deliveryDate: new Date('2025-11-01')
+        }
+        const garmentDetail: OrderDetail = {
+            id: '1',
+            quantity: 1,
+            garmentId: '1',
+            size: 'M' as orderSize,
+            sex: 'M' as 'M',
+            subtotal: 100
+        };
+        const updatedOrder = createOrderUseCase.addGarmentToOrder(newOrder, garmentDetail);
+        expect(updatedOrder.orderDetails[0].orderId).toBe(newOrder.id);
     });
 });

@@ -1,5 +1,5 @@
 import { OrderService } from "../services/order-service"; 
-import { Order } from "../entities/Order";
+import { Order, OrderStatus } from "../entities/Order";
 import { OrderDetail } from "../entities/OrderDetail";
 
 export class CreateOrder {
@@ -10,7 +10,7 @@ export class CreateOrder {
 
     async saveOrder(order: Order): Promise<Order> {
         order.orderDate = new Date(); // Always set to current date
-        order.status = order.status ?? 'pending';
+        order.status = order.status ?? OrderStatus.Pending; // Using enum
         this.validateOrder(order);
         return await this.orderService.saveOrder(order);
     }
@@ -20,6 +20,8 @@ export class CreateOrder {
             order.orderDetails = [];
         }
         
+        garmentDetail.orderId = order.id;
+
         // Validate garment detail before adding
         this.validateGarmentDetail(garmentDetail);
         
@@ -50,19 +52,17 @@ export class CreateOrder {
     }
 
     private validateOrder(order: Order): void {
-        // Validate presence of order details first (business rule: an order must contain at least one detail)
-        if (order.orderDetails.length === 0) {
-            throw new Error('Order must have at least one order detail');
-        }
+        
 
         // Validate delivery date relative to order date next
         if (order.deliveryDate <= order.orderDate) {
             throw new Error('Delivery date must be after order date');
         }
 
+        
         // Finally validate status value
-        const validStatuses = ['pending', 'in process', 'completed'];
-        if (!validStatuses.includes(order.status)) {
+        const validStatuses = [OrderStatus.Pending, OrderStatus.InProcess, OrderStatus.Completed];
+        if (!validStatuses.includes(order.status!)) {
             throw new Error('Order status must be pending, in process, or completed');
         }
     }

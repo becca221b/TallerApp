@@ -12,6 +12,10 @@ export const mockGarmentService = (
         saveGarment: vi.fn().mockImplementation(async (garment: Garment) => {
             garments.push(garment);
             return garment;
-        })
+        }),
+        findGarmentPriceById: vi.fn().mockImplementation(async (id: string) => {
+            const garment = garments.find(g => g.id === id);
+            return garment ? garment.price : null;
+        }),
     }
 }

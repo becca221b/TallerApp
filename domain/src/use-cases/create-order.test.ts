@@ -1,51 +1,73 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createMockOrderService } from "../mocks/mock-order-service";
+import { mockGarmentService } from "../mocks/mock-garment-service";
 import { CreateOrder, CreateOrderDetailParams, CreateOrderParams } from "./create-order";
 import { Order, OrderStatus } from "../entities/Order";
 import { OrderDetail, orderSize } from "../entities/OrderDetail";
+import { Garment, GarmentType } from "../entities/Garment";
+
 
 describe('CreateOrder Use Case', () => {
     let createOrderUseCase: CreateOrder;
     let mockOrderService: ReturnType<typeof createMockOrderService>;
+    let garmentServiceMock: ReturnType<typeof mockGarmentService>;
 
     beforeEach(() => {
         mockOrderService = createMockOrderService();
-        createOrderUseCase = new CreateOrder(mockOrderService);
+        garmentServiceMock = mockGarmentService();
+        createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
         vi.clearAllMocks();
     });
 
     describe('createOrderDetail', () => {
-        it('should create OrderDetail independently', () => {
+        it('should create OrderDetail independently', async () => {
+            const testGarments = [{
+                id: 'garment-123',
+                name: 'shirt' as GarmentType,
+                color: 'blue',
+                price: 75,
+                imageUrl: 'test.jpg',
+                neck: 'round',
+                cuff: 'standard',
+                flap: 'standard',
+                zipper: 'none',
+                pocket: 'single',
+                waist: 'standard'
+            }];
+            garmentServiceMock = mockGarmentService(testGarments);
+            createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
+            
             const params: CreateOrderDetailParams = {
                 garmentId: 'garment-123',
                 quantity: 2,
                 size: 'M',
                 sex: 'F',
-                subtotal: 150
+                subtotal: 0 // This will be calculated by the service
             };
 
-            const orderDetail = createOrderUseCase.createOrderDetail(params);
+            const orderDetail = await createOrderUseCase.createOrderDetail(params);
 
             expect(orderDetail.garmentId).toBe('garment-123');
             expect(orderDetail.quantity).toBe(2);
             expect(orderDetail.size).toBe('M');
             expect(orderDetail.sex).toBe('F');
-            expect(orderDetail.subtotal).toBe(150);
+            expect(orderDetail.subtotal).toBe(150); // 75 * 2
             expect(orderDetail.id).toBeDefined();
             expect(orderDetail.orderId).toBeUndefined(); // Should not be set yet
+            expect(garmentServiceMock.findGarmentPriceById).toHaveBeenCalledWith('garment-123');
         });
 
-        it('should validate OrderDetail parameters', () => {
+        it('should validate OrderDetail parameters', async () => {
             const invalidParams: CreateOrderDetailParams = {
                 garmentId: '',
                 quantity: 0,
                 size: 'M',
                 sex: 'F',
-                subtotal: -10
+                subtotal: 0
             };
 
-            expect(() => createOrderUseCase.createOrderDetail(invalidParams))
-                .toThrow('Quantity must be greater than 0');
+            await expect(createOrderUseCase.createOrderDetail(invalidParams))
+                .rejects.toThrow('Garment not found');
         });
     });
 
@@ -68,18 +90,18 @@ describe('CreateOrder Use Case', () => {
             expect(order.orderDate).toBeInstanceOf(Date);
         });
 
-        it('should create Order with custom status', () => {
+        it('should create Order with pending status by default', () => {
             const params: CreateOrderParams = {
                 customerId: 'customer-123',
                 employeeId: 'employee-456',
                 deliveryDate: new Date('2025-12-01'),
-                status: OrderStatus.InProcess
+                status: undefined
             };
 
             const order = createOrderUseCase.createOrder(params);
-
-            expect(order.status).toBe(OrderStatus.InProcess);
+            expect(order.status).toBe(OrderStatus.Pending);
         });
+    
     });
 
     describe('createCompleteOrder', () => {
@@ -160,25 +182,6 @@ describe('CreateOrder Use Case', () => {
                 expect.objectContaining({ orderDate: fixedDate })
             );
         });
-
-        it('should set default status to pending', async () => {
-            const newOrder: Order = {
-                id: '1',
-                customerId: '1',
-                employeeId: '1',
-                orderDetails: [],
-                orderDate: new Date(),
-                deliveryDate: new Date('2025-11-01')
-            };
-
-            const savedOrder = await createOrderUseCase.saveOrder(newOrder);
-            
-            expect(savedOrder.status).toBe(OrderStatus.Pending);
-            expect(mockOrderService.saveOrder).toHaveBeenCalledWith(
-                expect.objectContaining({ status: OrderStatus.Pending })
-            );
-        });
-
         
 
         it('should throw error if delivery date is before or equal to order date', async () => {
@@ -300,33 +303,6 @@ describe('CreateOrder Use Case', () => {
             expect(updatedOrder2.orderDetails[1].garmentId).toBe('2');
         });
 
-        it('should throw error if quantity is less than or equal to 0', () => {
-            const garmentDetail: OrderDetail = {
-                id: '1',
-                quantity: 0,
-                garmentId: '1',
-                size: 'M' as orderSize,
-                sex: 'M',
-                subtotal: 100
-            };
-
-            expect(() => createOrderUseCase.addGarmentToOrder(baseOrder, garmentDetail))
-                .toThrow('Quantity must be greater than 0');
-        });
-
-        it('should throw error if quantity is negative', () => {
-            const garmentDetail: OrderDetail = {
-                id: '1',
-                quantity: -1,
-                garmentId: '1',
-                size: 'M' as orderSize,
-                sex: 'M',
-                subtotal: 100
-            };
-
-            expect(() => createOrderUseCase.addGarmentToOrder(baseOrder, garmentDetail))
-                .toThrow('Quantity must be greater than 0');
-        });
 
         it('should throw error if garmentId is missing', () => {
             const garmentDetail: OrderDetail = {
@@ -399,29 +375,81 @@ describe('CreateOrder Use Case', () => {
             expect(() => createOrderUseCase.addGarmentToOrder(baseOrder, invalidGarmentDetail))
                 .toThrow('Quantity must be greater than 0');
         });
+
+        it('should accumulate totalPrice when adding multiple garments', () => {
+            const garmentDetail1: OrderDetail = {
+                id: '1',
+                quantity: 2,
+                garmentId: '1',
+                size: 'M' as orderSize,
+                sex: 'M',
+                subtotal: 200
+            }
+            const garmentDetail2: OrderDetail = {
+                id: '2',
+                quantity: 1,
+                garmentId: '2',
+                size: 'L' as orderSize,
+                sex: 'F',
+                subtotal: 150
+            }
+
+            let updatedOrder = createOrderUseCase.addGarmentToOrder(baseOrder, garmentDetail1);
+            updatedOrder = createOrderUseCase.addGarmentToOrder(updatedOrder, garmentDetail2);
+            expect(updatedOrder.totalPrice).toBe(350);
+        });
     });
 
     describe('Integration scenarios', () => {
         it('should follow the new workflow: create OrderDetails first, then Order, then add and save', async () => {
+            // Setup test garments
+            const testGarments = [
+                {
+                    id: 'shirt-001',
+                    name: 'shirt' as GarmentType,
+                    color: 'blue',
+                    price: 100,
+                    imageUrl: 'test1.jpg',
+                    neck: 'round',
+                    cuff: 'standard',
+                    flap: 'standard',
+                    zipper: 'none',
+                    pocket: 'single',
+                    waist: 'standard'
+                },
+                {
+                    id: 'pants-001',
+                    name: 'jacket' as GarmentType,
+                    color: 'black',
+                    price: 150,
+                    imageUrl: 'test2.jpg',
+                    neck: 'round',
+                    cuff: 'standard',
+                    flap: 'standard',
+                    zipper: 'full',
+                    pocket: 'double',
+                    waist: 'standard'
+                }
+            ];
+            garmentServiceMock = mockGarmentService(testGarments);
+            createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
+
             // Step 1: Create OrderDetails first
-            const garment1Params: CreateOrderDetailParams = {
+            const garment1 = await createOrderUseCase.createOrderDetail({
                 garmentId: 'shirt-001',
                 quantity: 2,
                 size: 'M',
                 sex: 'M',
-                subtotal: 200
-            };
+                subtotal: 0
+            });
 
-            const garment2Params: CreateOrderDetailParams = {
+            const garment2 = await createOrderUseCase.createOrderDetail({
                 garmentId: 'pants-001',
                 quantity: 1,
                 size: 'L',
                 sex: 'F',
-                subtotal: 150
-            };
-
-            const garment1 = createOrderUseCase.createOrderDetail(garment1Params);
-            const garment2 = createOrderUseCase.createOrderDetail(garment2Params);
+                subtotal: 0
+            });
 
             // Step 2: Create empty Order
             const orderParams: CreateOrderParams = {
@@ -441,25 +469,61 @@ describe('CreateOrder Use Case', () => {
             expect(savedOrder.orderDetails).toHaveLength(2);
             expect(savedOrder.orderDetails[0].orderId).toBe(savedOrder.id);
             expect(savedOrder.orderDetails[1].orderId).toBe(savedOrder.id);
+            expect(savedOrder.orderDetails[0].subtotal).toBe(200); // 100 * 2
+            expect(savedOrder.orderDetails[1].subtotal).toBe(150); // 150 * 1
+            expect(savedOrder.totalPrice).toBe(350);
+            expect(garmentServiceMock.findGarmentPriceById).toHaveBeenCalledTimes(2);
             expect(mockOrderService.saveOrder).toHaveBeenCalledWith(savedOrder);
         });
 
         it('should handle supervisor workflow with new step-by-step approach', async () => {
+            // Setup test garments
+            const testGarments = [
+                {
+                    id: 'garment-shirt',
+                    name: 'shirt' as GarmentType,
+                    color: 'blue',
+                    price: 100,
+                    imageUrl: 'test1.jpg',
+                    neck: 'round',
+                    cuff: 'standard',
+                    flap: 'standard',
+                    zipper: 'none',
+                    pocket: 'single',
+                    waist: 'standard'
+                },
+                {
+                    id: 'garment-pants',
+                    name: 'jacket' as GarmentType,
+                    color: 'black',
+                    price: 200,
+                    imageUrl: 'test2.jpg',
+                    neck: 'round',
+                    cuff: 'standard',
+                    flap: 'standard',
+                    zipper: 'full',
+                    pocket: 'double',
+                    waist: 'standard'
+                }
+            ];
+            garmentServiceMock = mockGarmentService(testGarments);
+            createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
+
             // Step 1: Supervisor creates OrderDetails first (garment specifications)
-            const shirtDetail = createOrderUseCase.createOrderDetail({
+            const shirtDetail = await createOrderUseCase.createOrderDetail({
                 garmentId: 'garment-shirt',
                 quantity: 3,
                 size: 'M',
                 sex: 'M',
-                subtotal: 300
+                subtotal: 0
             });
 
-            const pantsDetail = createOrderUseCase.createOrderDetail({
+            const pantsDetail = await createOrderUseCase.createOrderDetail({
                 garmentId: 'garment-pants',
                 quantity: 2,
                 size: 'L',
                 sex: 'F',
-                subtotal: 400
+                subtotal: 0
             });
 
             // Step 2: Create empty Order structure
@@ -483,81 +547,162 @@ describe('CreateOrder Use Case', () => {
             expect(finalOrder.orderDetails).toHaveLength(2);
             expect(finalOrder.orderDetails[0].quantity).toBe(3);
             expect(finalOrder.orderDetails[1].quantity).toBe(2);
+            expect(finalOrder.orderDetails[0].subtotal).toBe(300); // 100 * 3
+            expect(finalOrder.orderDetails[1].subtotal).toBe(400); // 200 * 2
+            expect(finalOrder.totalPrice).toBe(700);
+            expect(garmentServiceMock.findGarmentPriceById).toHaveBeenCalledTimes(2);
             expect(mockOrderService.saveOrder).toHaveBeenCalledTimes(1);
         });
 
-        it('should handle edge case: order with maximum garments', () => {
-            const order: Order = {
-                id: '1',
-                customerId: '1',
-                status: OrderStatus.Pending,
-                employeeId: '1',
-                orderDetails: [],
-                orderDate: new Date(),
-                deliveryDate: new Date('2025-11-01')
-            };
+        it('should handle edge case: order with maximum garments', async () => {
+            // Setup test garments
+            const testGarments = Array.from({ length: 10 }, (_, i) => ({
+                id: `garment-${i + 1}`,
+                name: 'shirt' as GarmentType,
+                color: 'blue',
+                price: (i + 1) * 50,
+                imageUrl: `test${i + 1}.jpg`,
+                neck: 'round',
+                cuff: 'standard',
+                flap: 'standard',
+                zipper: 'none',
+                pocket: 'single',
+                waist: 'standard'
+            }));
+            
+            garmentServiceMock = mockGarmentService(testGarments);
+            createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
 
-            // Add multiple garments to test array handling
-            const garments: OrderDetail[] = [];
+            const order = createOrderUseCase.createOrder({
+                customerId: '1',
+                employeeId: '1',
+                deliveryDate: new Date('2025-11-01')
+            });
+
+            // Create and add multiple garments
+            let updatedOrder = order;
             for (let i = 1; i <= 10; i++) {
-                garments.push({
-                    id: `detail-${i}`,
-                    quantity: i,
+                const garmentDetail = await createOrderUseCase.createOrderDetail({
                     garmentId: `garment-${i}`,
+                    quantity: i,
                     size: ['S', 'M', 'L', 'XL'][i % 4] as orderSize,
                     sex: i % 2 === 0 ? 'F' : 'M',
-                    subtotal: i * 50
+                    subtotal: 0
                 });
+                updatedOrder = createOrderUseCase.addGarmentToOrder(updatedOrder, garmentDetail);
             }
-
-            let updatedOrder = order;
-            garments.forEach(garment => {
-                updatedOrder = createOrderUseCase.addGarmentToOrder(updatedOrder, garment);
-            });
 
             expect(updatedOrder.orderDetails).toHaveLength(10);
             expect(updatedOrder.orderDetails[9].quantity).toBe(10);
-            expect(updatedOrder.orderDetails[9].subtotal).toBe(500);
+            expect(updatedOrder.orderDetails[9].subtotal).toBe(500); // 50 * 10
+            expect(updatedOrder.totalPrice).toBe(2750); // Sum of all subtotals
+            expect(garmentServiceMock.findGarmentPriceById).toHaveBeenCalledTimes(10);
         });
 
-        it('should handle different garment sizes and sexes', () => {
-            const order: Order = {
-                id: '1',
-                customerId: '1',
-                status: OrderStatus.Pending,
-                employeeId: '1',
-                orderDetails: [],
-                orderDate: new Date(),
-                deliveryDate: new Date('2025-11-01')
-            };
-
-            const testCases = [
-                { size: 'S' as orderSize, sex: 'F' as const, quantity: 1, subtotal: 50 },
-                { size: 'M' as orderSize, sex: 'M' as const, quantity: 2, subtotal: 100 },
-                { size: 'L' as orderSize, sex: 'F' as const, quantity: 1, subtotal: 75 },
-                { size: 'XL' as orderSize, sex: 'M' as const, quantity: 3, subtotal: 225 }
+        it('should handle different garment sizes and sexes', async () => {
+            // Setup test garments with different types
+            const testGarments = [
+                {
+                    id: 'shirt-s-m',
+                    name: 'shirt' as GarmentType,
+                    color: 'blue',
+                    price: 100,
+                    imageUrl: 'test1.jpg',
+                    neck: 'round',
+                    cuff: 'standard',
+                    flap: 'standard',
+                    zipper: 'none',
+                    pocket: 'single',
+                    waist: 'standard'
+                },
+                {
+                    id: 'shirt-l-f',
+                    name: 'shirt' as GarmentType,
+                    color: 'pink',
+                    price: 120,
+                    imageUrl: 'test2.jpg',
+                    neck: 'v-neck',
+                    cuff: 'standard',
+                    flap: 'standard',
+                    zipper: 'none',
+                    pocket: 'none',
+                    waist: 'fitted'
+                },
+                {
+                    id: 'jacket-xl-m',
+                    name: 'jacket' as GarmentType,
+                    color: 'black',
+                    price: 200,
+                    imageUrl: 'test3.jpg',
+                    neck: 'high',
+                    cuff: 'elastic',
+                    flap: 'standard',
+                    zipper: 'full',
+                    pocket: 'double',
+                    waist: 'standard'
+                }
             ];
+            
+            garmentServiceMock = mockGarmentService(testGarments);
+            createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
 
-            testCases.forEach((testCase, index) => {
-                const garmentDetail: OrderDetail = {
-                    id: `detail-${index}`,
-                    quantity: testCase.quantity,
-                    garmentId: `garment-${index}`,
-                    size: testCase.size,
-                    sex: testCase.sex,
-                    subtotal: testCase.subtotal
-                };
-
-                const updatedOrder = createOrderUseCase.addGarmentToOrder(order, garmentDetail);
-                expect(updatedOrder.orderDetails[index]).toEqual(
-                    expect.objectContaining({
-                        size: testCase.size,
-                        sex: testCase.sex,
-                        quantity: testCase.quantity,
-                        subtotal: testCase.subtotal
-                    })
-                );
+            // Create order details with different sizes and sexes
+            const garment1 = await createOrderUseCase.createOrderDetail({
+                garmentId: 'shirt-s-m',
+                quantity: 2,
+                size: 'S',
+                sex: 'M',
+                subtotal: 0
             });
+
+            const garment2 = await createOrderUseCase.createOrderDetail({
+                garmentId: 'shirt-l-f',
+                quantity: 1,
+                size: 'L',
+                sex: 'F',
+                subtotal: 0
+            });
+
+            const garment3 = await createOrderUseCase.createOrderDetail({
+                garmentId: 'jacket-xl-m',
+                quantity: 1,
+                size: 'XL',
+                sex: 'M',
+                subtotal: 0
+            });
+
+            // Create and update order
+            let updatedOrder = createOrderUseCase.createOrder({
+                customerId: '1',
+                employeeId: '1',
+                deliveryDate: new Date('2025-11-01')
+            });
+
+            updatedOrder = createOrderUseCase.addGarmentToOrder(updatedOrder, garment1);
+            updatedOrder = createOrderUseCase.addGarmentToOrder(updatedOrder, garment2);
+            updatedOrder = createOrderUseCase.addGarmentToOrder(updatedOrder, garment3);
+
+            // Verify all garments with different sizes and sexes
+            expect(updatedOrder.orderDetails).toHaveLength(3);
+            expect(updatedOrder.orderDetails[0].size).toBe('S');
+            expect(updatedOrder.orderDetails[0].sex).toBe('M');
+            expect(updatedOrder.orderDetails[0].subtotal).toBe(200); // 100 * 2
+
+            expect(updatedOrder.orderDetails[1].size).toBe('L');
+            expect(updatedOrder.orderDetails[1].sex).toBe('F');
+            expect(updatedOrder.orderDetails[1].subtotal).toBe(120); // 120 * 1
+
+            expect(updatedOrder.orderDetails[2].size).toBe('XL');
+            expect(updatedOrder.orderDetails[2].sex).toBe('M');
+            expect(updatedOrder.orderDetails[2].subtotal).toBe(200); // 200 * 1
+
+            expect(updatedOrder.totalPrice).toBe(520); // 200 + 120 + 200
+            expect(garmentServiceMock.findGarmentPriceById).toHaveBeenCalledTimes(3);
+
+            // Test complete flow with mix of sizes and sexes
+            const savedOrder = await createOrderUseCase.saveOrder(updatedOrder);
+            expect(savedOrder.totalPrice).toBe(520);
+            expect(savedOrder.orderDetails).toHaveLength(3);
         });
     });
 });

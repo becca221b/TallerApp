@@ -1,4 +1,5 @@
-import { OrderService } from "../services/order-service"; 
+import { OrderService } from "../services/order-service";
+import { GarmentService } from "../services/garment-service";
 import { Order, OrderStatus } from "../entities/Order";
 import { OrderDetail, orderSize } from "../entities/OrderDetail";
 
@@ -21,19 +22,24 @@ export class CreateOrder {
     // Implementation of CreateOrder use case
     constructor(
         private readonly orderService: OrderService,
+        private readonly garmentService: GarmentService
     ) {}
 
     /**
      * Step 1: Create OrderDetail independently
      */
-    createOrderDetail(params: CreateOrderDetailParams): OrderDetail {
+    async createOrderDetail(params: CreateOrderDetailParams): Promise<OrderDetail> {
+        const unitPrice = await this.garmentService.findGarmentPriceById(params.garmentId);
+        if(unitPrice === null) {
+            throw new Error('Garment not found');
+        }
         const orderDetail: OrderDetail = {
             id: this.generateId(),
             garmentId: params.garmentId,
             quantity: params.quantity,
             size: params.size,
             sex: params.sex,
-            subtotal: params.subtotal
+            subtotal: unitPrice * params.quantity,
         };
 
         this.validateGarmentDetail(orderDetail);
@@ -71,6 +77,7 @@ export class CreateOrder {
         this.validateGarmentDetail(garmentDetail);
         
         order.orderDetails.push(garmentDetail);
+        order.totalPrice = (order.totalPrice ?? 0) + garmentDetail.subtotal;
         return order;
     }
 
@@ -91,8 +98,14 @@ export class CreateOrder {
         orderParams: CreateOrderParams,
         garmentParams: CreateOrderDetailParams[]
     ): Promise<Order> {
-        // Step 1: Create OrderDetails first
-        const orderDetails = garmentParams.map(params => this.createOrderDetail(params));
+        if(garmentParams.length === 0) {
+            throw new Error('Order must contain at least one garment');
+        }
+
+        // Step 1: Create OrderDetails first (in parallel)
+        const orderDetails = await Promise.all(
+            garmentParams.map(params => this.createOrderDetail(params))
+        );
         
         // Step 2: Create empty Order
         const order = this.createOrder(orderParams);

@@ -10,6 +10,8 @@ export const createMockCustomerService = (
             customers.push(customer);
             return customer;
         }),
-        
+        findCustomerById: vi.fn().mockImplementation(async (id: string) => {
+            return customers.find(customer => customer.id === id) || null;
+        })
     }
 }

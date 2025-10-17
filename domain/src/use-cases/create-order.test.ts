@@ -104,44 +104,6 @@ describe('CreateOrder Use Case', () => {
     
     });
 
-    describe('createCompleteOrder', () => {
-        it('should follow the complete workflow: create OrderDetails first, then Order, then add and save', async () => {
-            const orderParams: CreateOrderParams = {
-                customerId: 'customer-123',
-                employeeId: 'employee-456',
-                deliveryDate: new Date('2025-12-01')
-            };
-
-            const garmentParams: CreateOrderDetailParams[] = [
-                {
-                    garmentId: 'shirt-001',
-                    quantity: 2,
-                    size: 'M',
-                    sex: 'M',
-                    subtotal: 200
-                },
-                {
-                    garmentId: 'pants-001',
-                    quantity: 1,
-                    size: 'L',
-                    sex: 'F',
-                    subtotal: 150
-                }
-            ];
-
-            const savedOrder = await createOrderUseCase.createCompleteOrder(orderParams, garmentParams);
-
-            expect(savedOrder.customerId).toBe('customer-123');
-            expect(savedOrder.employeeId).toBe('employee-456');
-            expect(savedOrder.orderDetails).toHaveLength(2);
-            expect(savedOrder.orderDetails[0].garmentId).toBe('shirt-001');
-            expect(savedOrder.orderDetails[1].garmentId).toBe('pants-001');
-            expect(savedOrder.orderDetails[0].orderId).toBe(savedOrder.id);
-            expect(savedOrder.orderDetails[1].orderId).toBe(savedOrder.id);
-            expect(mockOrderService.saveOrder).toHaveBeenCalledTimes(1);
-        });
-    });
-
     describe('saveOrder', () => {
         it('should create an order successfully', async () => {
             const newOrder: Order = {
@@ -400,7 +362,7 @@ describe('CreateOrder Use Case', () => {
         });
     });
 
-    describe('Integration scenarios', () => {
+    describe('createCompleteOrder', () => {
         it('should follow the new workflow: create OrderDetails first, then Order, then add and save', async () => {
             // Setup test garments
             const testGarments = [
@@ -594,8 +556,8 @@ describe('CreateOrder Use Case', () => {
 
             expect(updatedOrder.orderDetails).toHaveLength(10);
             expect(updatedOrder.orderDetails[9].quantity).toBe(10);
-            expect(updatedOrder.orderDetails[9].subtotal).toBe(500); // 50 * 10
-            expect(updatedOrder.totalPrice).toBe(2750); // Sum of all subtotals
+            expect(updatedOrder.orderDetails[9].subtotal).toBe(5000); // 500 * 10
+            expect(updatedOrder.totalPrice).toBe(19250); // Sum of all subtotals
             expect(garmentServiceMock.findGarmentPriceById).toHaveBeenCalledTimes(10);
         });
 

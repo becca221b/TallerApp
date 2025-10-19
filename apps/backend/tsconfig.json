@@ -7,10 +7,12 @@
     "declaration": true,
     "declarationMap": true,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@/domain/*": ["../../domain/src/*"]
+    }
   },
-  "references": [
-    { "path": "../../domain" }
-  ],
+  "references": [{ "path": "../../domain" }],
   "include": ["src"]
 }

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { EmployeeService } from '@/domain/services/employee-service';
+import { EmployeeRepository } from '../repositories/EmployeeRepository';
 import { Employee, employeeType } from '@/domain/entities/Employee';
 
 export class EmployeeController {
     constructor(
-        private readonly employeeService: EmployeeService
+        private readonly employeeRepository: EmployeeRepository
     ) {}
 
     async createEmployee(req: Request, res: Response) {
@@ -18,7 +18,7 @@ export class EmployeeController {
                 });
             }
 
-            const employee = await this.employeeService.saveEmployee(employeeData);
+            const employee = await this.employeeRepository.saveEmployee(employeeData);
             res.status(201).json(employee);
         } catch (error) {
             console.error('Error creating employee:', error);
@@ -37,7 +37,7 @@ export class EmployeeController {
                 return res.status(400).json({ error: 'Employee ID is required' });
             }
 
-            const employee = await this.employeeService.findEmployeeById(employeeId);
+            const employee = await this.employeeRepository.findEmployeeById(employeeId);
             if (!employee) {
                 return res.status(404).json({ error: 'Employee not found' });
             }
@@ -61,7 +61,7 @@ export class EmployeeController {
                 return res.status(400).json({ error: 'Invalid employee type' });
             }
 
-            const employees = await this.employeeService.findEmployeesByType(type);
+            const employees = await this.employeeRepository.findEmployeesByType(type);
             res.status(200).json(employees);
         } catch (error) {
             console.error('Error getting employees by type:', error);
@@ -78,7 +78,7 @@ export class EmployeeController {
                 return res.status(400).json({ error: 'Employee ID is required' });
             }
 
-            const updatedEmployee = await this.employeeService.updateEmployee(employeeId, updateData);
+            const updatedEmployee = await this.employeeRepository.updateEmployee(employeeId, updateData);
             if (!updatedEmployee) {
                 return res.status(404).json({ error: 'Employee not found' });
             }
@@ -101,7 +101,7 @@ export class EmployeeController {
                 return res.status(400).json({ error: 'Employee ID is required' });
             }
 
-            const deleted = await this.employeeService.deleteEmployee(employeeId);
+            const deleted = await this.employeeRepository.deleteEmployee(employeeId);
             if (!deleted) {
                 return res.status(404).json({ error: 'Employee not found' });
             }
@@ -115,7 +115,7 @@ export class EmployeeController {
 
     async getAllEmployees(req: Request, res: Response) {
         try {
-            const employees = await this.employeeService.findAllEmployees();
+            const employees = await this.employeeRepository.findAllEmployees();
             res.status(200).json(employees);
         } catch (error) {
             console.error('Error getting all employees:', error);
@@ -125,6 +125,8 @@ export class EmployeeController {
 }
 
 // Factory function to create the controller with dependencies
-export const createEmployeeController = (employeeService: EmployeeService) => {
-    return new EmployeeController(employeeService);
+export const createEmployeeController = (employeeRepository: EmployeeRepository) => {
+    return new EmployeeController(employeeRepository);
 };
+
+

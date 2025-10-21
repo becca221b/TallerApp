@@ -1,16 +1,13 @@
 import { Request, Response } from 'express';
-import { CreateOrder, CreateOrderParams, CreateOrderDetailParams } from '@/domain/use-cases/create-order';
-import { AssignOrder, AssignOrderParams } from '@/domain/use-cases/assign-order';
-import { OrderService } from '@/domain/services/order-service';
-import { GarmentService } from '@/domain/services/garment-service';
-import { EmployeeService } from '@/domain/services/employee-service';
-import { OrderStatus } from '@/domain/entities/Order';
+import { CreateOrderUseCase } from '@/domain/use-cases/CreateOrderUseCase';
+import { AssignOrderUseCase } from '@/domain/use-cases/AssignOrderUseCase';
+import { GetOrdersUseCase } from '@/domain/use-cases/GetOrdersUseCase';
 
 export class OrderController {
     constructor(
-        private readonly createOrderUseCase: CreateOrder,
-        private readonly assignOrderUseCase: AssignOrder,
-        private readonly orderService: OrderService
+        private readonly createOrderUseCase: CreateOrderUseCase,
+        private readonly assignOrderUseCase: AssignOrderUseCase,
+        private readonly getOrdersUseCase: GetOrdersUseCase
     ) {}
 
     async createOrder(req: Request, res: Response) {
@@ -31,28 +28,33 @@ export class OrderController {
                 });
             }
 
-            // Prepare order parameters
-            const orderParams: CreateOrderParams = {
+            // Verify employee exists
+            const employee = await this.employeeRepository.findEmployeeById(employeeId);
+            if (!employee) {
+                return res.status(404).json({ error: 'Employee not found' });
+            }
+
+            // Verify and calculate garment prices
+            const garmentDetails = await Promise.all(garments.map(async (garment) => {
+                const garmentInfo = await this.garmentRepository.findGarmentById(garment.garmentId);
+                if (!garmentInfo) {
+                    throw new Error(`Garment with id ${garment.garmentId} not found`);
+                }
+                return {
+                    ...garment,
+                    subtotal: garmentInfo.price * garment.quantity
+                };
+            }));
+
+            // Create order
+            const order = await this.orderRepository.saveOrder({
                 customerId,
                 employeeId,
                 deliveryDate: new Date(deliveryDate),
-                status: OrderStatus.Pending
-            };
-
-            // Prepare garment parameters
-            const garmentParams: CreateOrderDetailParams[] = garments.map(garment => ({
-                garmentId: garment.garmentId,
-                quantity: garment.quantity,
-                size: garment.size,
-                sex: garment.sex,
-                subtotal: 0 // Will be calculated by the use case
-            }));
-
-            // Create the complete order using the use case
-            const order = await this.createOrderUseCase.createCompleteOrder(
-                orderParams,
-                garmentParams
-            );
+                status: OrderStatus.Pending,
+                orderDetails: garmentDetails,
+                totalPrice: garmentDetails.reduce((sum, g) => sum + g.subtotal, 0)
+            });
 
             res.status(201).json(order);
         } catch (error) {
@@ -76,21 +78,42 @@ export class OrderController {
                 });
             }
 
-            // Prepare assignment parameters
-            const assignParams: AssignOrderParams = {
-                orderId,
+            // Verify order exists
+            const order = await this.orderRepository.findOrderById(orderId);
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            // Verify employee exists and is active
+            const employee = await this.employeeRepository.findEmployeeById(employeeId);
+            if (!employee) {
+                return res.status(404).json({ error: 'Employee not found' });
+            }
+            if (!employee.isActive) {
+                return res.status(403).json({ error: 'Employee is not active' });
+            }
+
+            // Verify supervisor exists and has proper role
+            const supervisor = await this.employeeRepository.findEmployeeById(assignedBySupervisorId);
+            if (!supervisor) {
+                return res.status(404).json({ error: 'Supervisor not found' });
+            }
+            if (supervisor.employeeType !== 'Supervisor') {
+                return res.status(403).json({ error: 'Assigner must be a supervisor' });
+            }
+
+            // Update order
+            const updatedOrder = await this.orderRepository.updateOrder(orderId, {
                 employeeId,
-                assignedBySupervisorId
-            };
+                status: 'Assigned',
+                assignedBySupervisorId,
+                assignedAt: new Date()
+            });
 
-            // Assign the order using the use case
-            const assignedOrder = await this.assignOrderUseCase.assignOrder(assignParams);
-
-            res.status(200).json(assignedOrder);
+            res.status(200).json(updatedOrder);
         } catch (error) {
             console.error('Error assigning order:', error);
             if (error instanceof Error) {
-                // Handle specific error cases
                 if (error.message.includes('not found')) {
                     return res.status(404).json({ error: error.message });
                 }
@@ -113,7 +136,7 @@ export class OrderController {
                 return res.status(400).json({ error: 'Order ID is required' });
             }
 
-            const order = await this.orderService.findOrderById(orderId);
+            const order = await this.orderRepository.findOrderById(orderId);
             if (!order) {
                 return res.status(404).json({ error: 'Order not found' });
             }
@@ -132,7 +155,7 @@ export class OrderController {
                 return res.status(400).json({ error: 'Customer ID is required' });
             }
 
-            const orders = await this.orderService.findOrdersByCustomerId(customerId);
+            const orders = await this.orderRepository.findOrdersByCustomerId(customerId);
             res.status(200).json(orders);
         } catch (error) {
             console.error('Error getting customer orders:', error);
@@ -147,7 +170,7 @@ export class OrderController {
                 return res.status(400).json({ error: 'Employee ID is required' });
             }
 
-            const orders = await this.orderService.findOrdersByEmployeeId(employeeId);
+            const orders = await this.orderRepository.findOrdersByEmployeeId(employeeId);
             res.status(200).json(orders);
         } catch (error) {
             console.error('Error getting employee orders:', error);
@@ -158,11 +181,9 @@ export class OrderController {
 
 // Factory function to create the controller with all dependencies
 export const createOrderController = (
-    orderService: OrderService,
-    garmentService: GarmentService,
-    employeeService: EmployeeService
+    orderRepository: OrderRepository,
+    garmentRepository: GarmentRepository,
+    employeeRepository: EmployeeRepository
 ) => {
-    const createOrderUseCase = new CreateOrder(orderService, garmentService);
-    const assignOrderUseCase = new AssignOrder(orderService, employeeService);
-    return new OrderController(createOrderUseCase, assignOrderUseCase, orderService);
+    return new OrderController(orderRepository, garmentRepository, employeeRepository);
 };

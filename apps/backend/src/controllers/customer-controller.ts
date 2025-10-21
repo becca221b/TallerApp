@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { CustomerService } from '@/domain/services/customer-service';
+import { CustomerRepository } from '../repositories/CustomerRepository';
 import { Customer } from '@/domain/entities/Customer';
 
 export class CustomerController {
     constructor(
-        private readonly customerService: CustomerService
+        private readonly customerRepository: CustomerRepository
     ) {}
 
     async createCustomer(req: Request, res: Response) {
@@ -18,7 +18,7 @@ export class CustomerController {
                 });
             }
 
-            const customer = await this.customerService.saveCustomer(customerData);
+            const customer = await this.customerRepository.saveCustomer(customerData);
             res.status(201).json(customer);
         } catch (error) {
             console.error('Error creating customer:', error);
@@ -37,7 +37,7 @@ export class CustomerController {
                 return res.status(400).json({ error: 'Customer ID is required' });
             }
 
-            const customer = await this.customerService.findCustomerById(customerId);
+            const customer = await this.customerRepository.findCustomerById(customerId);
             if (!customer) {
                 return res.status(404).json({ error: 'Customer not found' });
             }
@@ -48,10 +48,9 @@ export class CustomerController {
             res.status(500).json({ error: 'Internal server error while fetching customer' });
         }
     }
-
 }
 
 // Factory function to create the controller with dependencies
-export const createCustomerController = (customerService: CustomerService) => {
-    return new CustomerController(customerService);
+export const createCustomerController = (customerRepository: CustomerRepository) => {
+    return new CustomerController(customerRepository);
 };

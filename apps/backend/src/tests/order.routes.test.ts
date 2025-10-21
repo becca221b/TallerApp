@@ -36,11 +36,13 @@ describe('Order Routes', () => {
     clearModels();
     
     // Re-import models to ensure they're fresh for each test
-    const { OrderModel: OM } = await import('../models/OrderModel');
+    const { OrderModel: OM } = await import('../models/OrderModel.js');
     OrderModel = OM;
     
     // Clear the database
-    await mongoose.connection.db.dropDatabase();
+    if(mongoose.connection.db) {
+      await mongoose.connection.db.dropDatabase();
+    }
   });
 
   describe('POST /orders', () => {

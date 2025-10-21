@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { Order, OrderStatus } from '@/domain/entities/Order';
-import { OrderDetailModel } from './OrderDetailModel';
+import { OrderDetailSchema } from './OrderDetailModel';
 
 
 const OrderSchema = new Schema<Order>({
@@ -15,7 +15,7 @@ const OrderSchema = new Schema<Order>({
         default: OrderStatus.Pending
     },
     totalPrice: { type: Number, required: false, min: 0 },
-    orderDetails: [OrderDetailModel], 
+    orderDetails: [OrderDetailSchema], 
     deliveryDate: { type: Date, required: true },
 });
 

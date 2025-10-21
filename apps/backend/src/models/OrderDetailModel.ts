@@ -19,4 +19,4 @@ const OrderDetailSchema = new Schema<OrderDetail>({
     subtotal: { type: Number, required: true, min: 0 }
 }); 
 
-export const OrderDetailModel = model('OrderDetail', OrderDetailSchema);
+export { OrderDetailSchema };

@@ -6,7 +6,7 @@ export class UserRepository implements UserService {
     
     async saveUser(user: User): Promise<User> {
         const newUser = await UserModel.create(user);
-        // Transform the Mongoose document to your User type
+        // Transform the Mongoose document to User type
         const userData: User = {
             id: newUser._id.toString(),
             username: newUser.username,

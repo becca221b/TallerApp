@@ -1,6 +1,7 @@
 import { UserService } from "../services/user-service";
 import bcrypt from "bcrypt";
 import type { User } from "../entities/User";
+import jwt from "jsonwebtoken";
 
 interface LoginUserDTO {
   username: string;
@@ -10,7 +11,7 @@ interface LoginUserDTO {
 export class LoginUser {
   constructor(private userService: UserService) {}
 
-  async execute(dto: LoginUserDTO): Promise<User> {
+  async execute(dto: LoginUserDTO): Promise<{token: string, user: User}> {
     // Try to find the user by username
     const user = await this.userService.findUserByName(dto.username);
     if (!user) {
@@ -25,6 +26,8 @@ export class LoginUser {
       }
     } 
 
-    return user;
+    const token = jwt.sign({ username: user.username }, "test_secret", { expiresIn: "1h" });
+    return { token, user };
+    
   }
 }

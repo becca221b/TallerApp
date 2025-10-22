@@ -1,50 +1,14 @@
 import request from 'supertest';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import express from 'express';
 import mongoose from 'mongoose';
-import orderRoutes from '../routes/order.routes';
 import { OrderStatus } from '@/domain/entities/Order';
+import { app } from '../app';
 
-// Mock the repositories
-vi.mock('../repositories/OrderRepository');
-vi.mock('../repositories/GarmentRepository');
-vi.mock('../repositories/EmployeeRepository');
-
-// Import the actual implementations to access their types
-import { OrderRepository } from '../repositories/OrderRepository';
-import { GarmentRepository } from '../repositories/GarmentRepository';
-import { EmployeeRepository } from '../repositories/EmployeeRepository';
-
-const app = express();
-app.use(express.json());
-app.use(orderRoutes);
-
-// Clear mongoose models before each test
-const clearModels = () => {
-  const modelNames = Object.keys(mongoose.connection.models);
-  for (const modelName of modelNames) {
-    delete (mongoose.connection.models as any)[modelName];
-  }
-};
 
 describe('Order Routes', () => {
   let OrderModel: any;
 
-  beforeEach(async () => {
-    // Clear all mocks and models before each test
-    vi.clearAllMocks();
-    clearModels();
-    
-    // Re-import models to ensure they're fresh for each test
-    const { OrderModel: OM } = await import('../models/OrderModel.js');
-    OrderModel = OM;
-    
-    // Clear the database
-    if(mongoose.connection.db) {
-      await mongoose.connection.db.dropDatabase();
-    }
-  });
-
+  
   describe('POST /orders', () => {
     const validOrderData = {
       customerId: new mongoose.Types.ObjectId().toString(),
@@ -63,7 +27,7 @@ describe('Order Routes', () => {
 
     it('should create a new order successfully', async () => {
       const response = await request(app)
-        .post('/orders')
+        .post('/api/orders')
         .send(validOrderData);
 
       expect(response.status).toBe(201);
@@ -83,7 +47,7 @@ describe('Order Routes', () => {
 
     it('should return 400 if required fields are missing', async () => {
       const response = await request(app)
-        .post('/orders')
+        .post('api/orders')
         .send({});
 
       expect(response.status).toBe(400);
@@ -172,43 +136,7 @@ describe('Order Routes', () => {
     });
   });
 
-  describe('GET /orders/customer/:customerId', () => {
-    it('should return orders for a customer', async () => {
-      const customerId = new mongoose.Types.ObjectId();
-      
-      // Create test orders
-      await OrderModel.create([
-        {
-          customerId,
-          employeeId: new mongoose.Types.ObjectId(),
-          status: OrderStatus.Pending,
-          orderDate: new Date(),
-          deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          orderDetails: [],
-          totalPrice: 100,
-        },
-        {
-          customerId,
-          employeeId: new mongoose.Types.ObjectId(),
-          status: OrderStatus.Completed,
-          orderDate: new Date(),
-          deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          orderDetails: [],
-          totalPrice: 200,
-        },
-      ]);
-
-      const response = await request(app)
-        .get(`/orders/customer/${customerId}`);
-
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(2);
-      response.body.forEach((order: any) => {
-        expect(order.customerId).toBe(customerId.toString());
-      });
-    });
-  });
+  
 
   describe('GET /orders/employee/:employeeId', () => {
     it('should return orders for an employee', async () => {

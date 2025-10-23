@@ -9,19 +9,42 @@ export class OrderController {
 
     constructor (private orderRepository: OrderRepository, private garmentRepository: GarmentRepository, private employeeRepository: EmployeeRepository) {}
     
+        
     async createOrder(req: Request, res: Response):Promise<void> {
-        try {
+         try {
             const { customerId, employeeId, deliveryDate, garments } = req.body;
             
-            const order = await new CreateOrder(this.orderRepository, this.garmentRepository).createOrderDetail({
-                garmentId: garments.garmentId,
-                quantity: garments.quantity,
-                size: garments.size, 
-                sex: garments.sex, 
-                subtotal: garments.subtotal});
-            res.status(201).json({ message: "Order created successfully", order });
+            if (!customerId || !employeeId || !deliveryDate || !Array.isArray(garments)) {
+                throw new Error('Missing required fields. Required: customerId, employeeId, deliveryDate, garments[]');
+            }
+
+            const createOrder = new CreateOrder(
+                this.orderRepository, 
+                this.garmentRepository
+            );
+
+            const orderDetails = await Promise.all(
+            garments.map(garment => 
+                createOrder.createOrderDetail({
+                    garmentId: garment.garmentId,
+                    quantity: garment.quantity,
+                    size: garment.size,
+                    sex: garment.sex,
+                    subtotal: garment.subtotal
+                })
+            )
+            );
+
+            const order = await createOrder.createCompleteOrder(
+                {
+                    customerId,
+                    employeeId,
+                    deliveryDate,
+                }, orderDetails
+            );
+        res.status(201).json({ message: "Order created successfully", order });
         } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(400).json({ message: error.message, error });
         }
     }
 

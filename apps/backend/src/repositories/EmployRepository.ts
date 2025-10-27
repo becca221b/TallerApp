@@ -32,7 +32,8 @@ export class EmployeeRepository implements EmployeeService {
             phone: employee.phone,
             employeeType: employee.employeeType,
             username: employee.username,
-            password: employee.password
+            password: employee.password,
+            isActive: employee.isActive
         };
     }
     

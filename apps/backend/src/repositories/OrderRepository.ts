@@ -10,8 +10,12 @@ export class OrderRepository implements OrderService {
     }
 
     async findOrderById(id: string): Promise<Order | null> {
-        const order = await OrderModel.findById(id);
-        return order;
+        const order = await OrderModel.findById(id).lean();
+        if (!order) return null;
+        return {
+            ...order,
+            id: order._id.toString()
+        };
     }
 
     async findOrdersByEmployeeId(employeeId: string): Promise<Order[]> {

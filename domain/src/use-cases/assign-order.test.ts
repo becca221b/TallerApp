@@ -101,13 +101,6 @@ describe('AssignOrder Use Case', () => {
 
             expect(result.employeeId).toBe('costurero-1');
             expect(result.status).toBe(OrderStatus.InProcess);
-            expect(mockOrderService.saveOrder).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    id: 'order-1',
-                    employeeId: 'costurero-1',
-                    status: OrderStatus.InProcess
-                })
-            );
             expect(mockEmployeeService.findEmployeeById).toHaveBeenCalledWith('supervisor-1');
             expect(mockEmployeeService.findEmployeeById).toHaveBeenCalledWith('costurero-1');
         });

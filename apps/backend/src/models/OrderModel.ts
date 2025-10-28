@@ -4,9 +4,9 @@ import { OrderDetailSchema } from './OrderDetailModel';
 
 
 const OrderSchema = new Schema<Order>({
-    id: { type: String, required: true, unique: true },
+    id: { type: String, unique: true },
     customerId: { type: String, required: true },
-    employeeId: { type: String, required: true },
+    employeeId: { type: String },
     orderDate: { type: Date, required: true, default: Date.now },
     status: { 
         type: String,

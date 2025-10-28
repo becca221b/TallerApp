@@ -46,18 +46,21 @@ export class AssignOrder {
 
         // Validate order status - can only assign pending orders
         if (order.status !== OrderStatus.Pending) {
+            console.log("The order Status: " + order.status);
             throw new Error('Can only assign pending orders');
         }
 
         // Update the order with new employee assignment and status
-        const updatedOrder: Order = {
+        const updatedOrder = {
             ...order,
             employeeId: params.employeeId,
             status: OrderStatus.InProcess
         };
 
         // Save the updated order
-        return await this.orderService.saveOrder(updatedOrder);
+        await this.orderService.updateOrder(params.orderId, updatedOrder);
+
+        return updatedOrder;
     }
 
     /**

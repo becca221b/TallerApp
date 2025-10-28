@@ -3,6 +3,7 @@ import { CreateOrder } from "@/domain/use-cases/create-order";
 import { OrderRepository } from "../repositories/OrderRepository";
 import { GarmentRepository } from "../repositories/GarmentRepository";
 import { AssignOrder } from "@/domain/use-cases/assign-order";
+import { UpdateOrderStatus } from "@/domain/use-cases/update-order-status";
 import { EmployeeRepository } from "../repositories/EmployRepository";
 
 export class OrderController {
@@ -69,5 +70,14 @@ export class OrderController {
         }
     }
 
-    
+    async updateOrderStatus(req: Request, res: Response):Promise<void> {
+        try {
+            const { orderId, newStatus, employeeId } = req.body;
+            
+            const order = await new UpdateOrderStatus(this.orderRepository, this.employeeRepository).execute(orderId, newStatus, employeeId);
+            res.status(200).json({ message: "Order status updated successfully", order });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }

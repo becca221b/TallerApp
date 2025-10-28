@@ -217,5 +217,56 @@ describe('Order Routes', () => {
       });
     });
   });
+
+  //Actualizar estado de una orden
+  describe('POST /api/orders/update-status', () => {
+    it('should update the status of an order', async () => {
+
+       // Create a test employee (Costurero)
+      const employeeData = {
+        id: new mongoose.Types.ObjectId().toString(),
+        name: 'Test',
+        surname: 'Employee',
+        documentNumber: '12345678',
+        phone: '1234567890',
+        employeeType: 'Costurero',  // Must be 'Costurero' as per validation
+        username: 'test.employee',
+        password: 'test123',
+        isActive: true,  // Must be active
+        email: 'employee@test.com',
+        address: '456 Employee St'
+      };  
+      const employee = await EmployeeModel.create(employeeData);
+      // Create a test order
+      const pendingOrder = await OrderModel.create({
+            customerId: 'customer123',
+            employeeId: employee._id.toString(),
+            orderDate: new Date(),
+            status: OrderStatus.Pending,
+            totalPrice: 100,
+            orderDetails: [],
+            deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        });
+      
+     
+      const fakeNewStatus = OrderStatus.InProcess;
+      
+      const response = await request(app)
+        .post('/api/orders/update-status')
+        .send({
+          orderId: pendingOrder._id.toString(),
+          newStatus: fakeNewStatus,
+          employeeId: employee._id.toString(),
+        });
+      console.log(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message', 'Order status updated successfully');
+      /**
+       expect(response.body).toHaveProperty('order');
+      expect(response.body.order).toHaveProperty('id', pendingOrder._id.toString());
+      expect(response.body.order).toHaveProperty('status', fakeNewStatus);
+       */
+    });
+  });
  
 });

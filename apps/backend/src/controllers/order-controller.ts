@@ -58,4 +58,16 @@ export class OrderController {
             res.status(400).json({ message: error.message });
         }
     }
+    
+    async getOrdersByEmployeeId(req: Request, res: Response):Promise<void> {
+        try {
+            const { employeeId } = req.params;
+            const orders = await this.orderRepository.findOrdersByEmployeeId(employeeId);
+            res.status(200).json({ orders });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    
 }

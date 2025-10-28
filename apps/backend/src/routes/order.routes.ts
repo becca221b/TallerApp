@@ -15,7 +15,6 @@ const orderController = new OrderController(orderRepository, garmentRepository,e
 // Order routes
 router.post("/", (req, res) => orderController.createOrder(req, res));
 router.post("/assign", (req, res) => orderController.assignOrder(req, res));
-//router.get("/api/orders/:id", (req, res) => orderController.getOrderById(req, res));
-//router.get("/api/orders/employee/:employeeId", (req, res) => orderController.getOrdersByEmployeeId(req, res));
+router.get("/employee/:employeeId", (req, res) => orderController.getOrdersByEmployeeId(req, res));
 
 export default router;

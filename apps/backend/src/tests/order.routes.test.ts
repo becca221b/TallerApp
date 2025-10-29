@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { OrderStatus } from '@/domain/entities/Order';
 import { app } from '../app';
 import { GarmentModel } from '../models/GarmentModel';
@@ -261,11 +261,9 @@ describe('Order Routes', () => {
       console.log(response.body);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('message', 'Order status updated successfully');
-      /**
        expect(response.body).toHaveProperty('order');
       expect(response.body.order).toHaveProperty('id', pendingOrder._id.toString());
       expect(response.body.order).toHaveProperty('status', fakeNewStatus);
-       */
     });
   });
  

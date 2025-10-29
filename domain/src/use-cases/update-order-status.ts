@@ -1,14 +1,14 @@
-import { OrderStatus } from "../entities/Order";
+import { Order, OrderStatus } from "../entities/Order";
 import { OrderService } from "../services/order-service";
 import { EmployeeService } from "../services/employee-service";
-import { Employee } from "../entities/Employee";
+
 
 export class UpdateOrderStatus {
     constructor(
         private readonly orderService: OrderService,
         private readonly employService: EmployeeService
     ) {}
-    async execute(orderId: string, newStatus: string, employeeId: string): Promise<void> {
+    async execute(orderId: string, newStatus: string, employeeId: string): Promise<Order> {
         const order = await this.orderService.findOrderById(orderId);
         const employee = await this.employService.findEmployeeById(employeeId);
         if (!order) {
@@ -22,5 +22,7 @@ export class UpdateOrderStatus {
         }
         order.status = newStatus as OrderStatus;
         await this.orderService.updateOrder(orderId, order);
+
+        return order;
     }
 }

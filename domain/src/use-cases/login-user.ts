@@ -26,7 +26,10 @@ export class LoginUser {
       }
     } 
 
-    const token = jwt.sign({ username: user.username }, "test_secret", { expiresIn: "1h" });
+    const token = jwt.sign({ 
+      username: user.username,
+      role: user.role,
+    },"clave_secreta_dev", { expiresIn: "1h" });
     return { token, user };
     
   }

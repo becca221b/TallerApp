@@ -6,6 +6,11 @@ import { GarmentModel } from '../models/GarmentModel';
 import { OrderModel } from '../models/OrderModel';
 import { EmployeeModel } from '../models/EmployeeModel';
 import { mongoose } from './setup';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+let supervisorToken: string;
+let costureroToken: string;
 
 beforeEach(async () => {
   // Clear all collections
@@ -13,8 +18,47 @@ beforeEach(async () => {
   await EmployeeModel.deleteMany({});
   await OrderModel.deleteMany({});
   await GarmentModel.deleteMany({});
-});
+  });
 
+  // Crear supervisor (rol con permisos para crear y asignar órdenes)
+  const supervisor = await EmployeeModel.create({
+    name: 'Supervisor',
+    surname: 'Test',
+    documentNumber: '87654321',
+    phone: '1234567890',
+    employeeType: 'Supervisor',
+    username: 'supervisor.test',
+    password: 'hashedpass',
+    isActive: true,
+    email: 'supervisor@test.com',
+    address: '123 Main St'
+  });
+
+  supervisorToken = jwt.sign(
+    { id: supervisor._id, role: 'Supervisor', username: supervisor.username },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+
+  // Crear costurero (rol que solo puede actualizar o ver órdenes propias)
+  const costurero = await EmployeeModel.create({
+    name: 'Costurero',
+    surname: 'Test',
+    documentNumber: '12345678',
+    phone: '1234567890',
+    employeeType: 'Costurero',
+    username: 'costurero.test',
+    password: 'hashedpass',
+    isActive: true,
+    email: 'costurero@test.com',
+    address: '456 Side St'
+  });
+
+  costureroToken = jwt.sign(
+    { id: costurero._id, role: 'Costurero', username: costurero.username },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  );
 
   // Create test garment
   const garmentId = "676641152221222122212221";
@@ -59,6 +103,7 @@ describe('Order Routes', () => {
     it('should create a new order successfully', async () => {
       const response = await request(app)
         .post('/api/orders')
+        .set('Authorization', `Bearer ${supervisorToken}`)
         .send(validOrderData);
 
       expect(response.status).toBe(201);
@@ -81,9 +126,29 @@ describe('Order Routes', () => {
       });
     });
 
+    it('should return 401 if no token is provided', async () => {
+      const response = await request(app)
+        .post('/api/orders')
+        .send(validOrderData);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('message', 'No token provided');
+    });
+
+    it('should return 403 if user role is not allowed', async () => {
+      const response = await request(app)
+        .post('/api/orders')
+        .set('Authorization', `Bearer ${costureroToken}`) // costurero no puede crear
+        .send(validOrderData);
+
+      expect(response.status).toBe(403);
+      expect(response.body).toHaveProperty('message', 'Unauthorized');
+    });
+
     it('should return 400 if required fields are missing', async () => {
       const response = await request(app)
         .post('/api/orders')
+        .set('Authorization', `Bearer ${supervisorToken}`)
         .send({});
 
       expect(response.status).toBe(400);
@@ -94,6 +159,7 @@ describe('Order Routes', () => {
       
       const response = await request(app)
         .post('/api/orders')
+        .set('Authorization', `Bearer ${supervisorToken}`)
         .send(invalidData);
 
       expect(response.status).toBe(400);

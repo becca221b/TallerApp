@@ -3,6 +3,7 @@ import { OrderController } from "../controllers/order-controller";
 import { OrderRepository } from "../repositories/OrderRepository";
 import { GarmentRepository } from "../repositories/GarmentRepository";
 import { EmployeeRepository } from "../repositories/EmployRepository";
+import { authenticate, authorize } from "src/config/jwt";
 
 const router = Router();
 
@@ -13,7 +14,7 @@ const employeeRepository = new EmployeeRepository();
 const orderController = new OrderController(orderRepository, garmentRepository,employeeRepository);
 
 // Order routes
-router.post("/", (req, res) => orderController.createOrder(req, res));
+router.post("/", authenticate, authorize("Supervisor") ,(req, res) => orderController.createOrder(req, res));
 router.post("/assign", (req, res) => orderController.assignOrder(req, res));
 router.get("/employee/:employeeId", (req, res) => orderController.getOrdersByEmployeeId(req, res));
 router.post("/update-status", (req, res) => orderController.updateOrderStatus(req, res));

@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import { Employee, employeeType } from '@/domain/entities/Employee';
 
 const EmployeeSchema = new Schema<Employee>({
-    id: { type: String, required: true, unique: true },
+    id: { type: String },
     name: { type: String, required: true },
     surname: { type: String, required: true },
     documentNumber: { type: String, required: true, unique: true },

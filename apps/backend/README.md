@@ -3,6 +3,7 @@
 Este módulo implementa la **API REST** y la infraestructura de persistencia.
 
 ## 📁 Estructura
+```
 src/
 ├── controllers/ → Controladores HTTP
 ├── routes/ → Definición de endpoints
@@ -10,6 +11,7 @@ src/
 ├── models/ → Esquemas Mongoose
 ├── config/ → Configuración (DB, middlewares, etc.)
 └── tests/ → Tests de integraciones (Vitest + Supertest)
+```
 
 
 ## 🧩 Arquitectura
@@ -126,6 +128,16 @@ Inicio de sesión
 ```
 
 👥 Orders
+
+
+### Autenticación
+| Method | Endpoint       | Description                  | Auth Required |
+|--------|----------------|------------------------------|---------------|
+| POST   | /orders        | Create Order                 | Yes           |
+| POST   | /orders/assign | Assign Order to Employee     | Yes           |
+| PUT    | /orders/:id    | Update Order                 | Yes           |
+
+#### `POST /orders`
 Create Order
 POST /api/orders (Requires Supervisor role)
 

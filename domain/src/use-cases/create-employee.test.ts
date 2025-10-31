@@ -1,11 +1,10 @@
-import  { Employee } from '../entities/Employee';
+import type { Employee } from '../entities/Employee.js';
 import { describe, it, expect, vi } from 'vitest';
-import {  createMockEmployeeService } from '../mocks/mock-employee-service';
+import { createMockEmployeeService } from '../mocks/mock-employee-service.js';
 
 describe('Create an employee',()=>{
     it('should create an employee', async()=>{
         const mockEmployeeService = createMockEmployeeService();
-        
 
         const newEmployee: Employee = {
             id: '1',

@@ -19,7 +19,7 @@ export const createMockEmployeeService = (
         updateEmployee: vi.fn().mockImplementation(async (id: string, employeeUpdate: Partial<Employee>) => {
             const employeeIndex = employees.findIndex(employee => employee.id === id);
             if (employeeIndex !== -1) {
-                employees[employeeIndex] = { ...employees[employeeIndex], ...employeeUpdate };
+                employees[employeeIndex] = { ...employees[employeeIndex], ...employeeUpdate } as Employee;
                 return employees[employeeIndex];
             }
             return null;

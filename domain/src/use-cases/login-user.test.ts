@@ -29,7 +29,7 @@ describe("LoginUser Use Case", () => {
         (bcrypt.compare as any).mockResolvedValueOnce(true);
 
         const result = await loginUser.execute({ username: "testuser", password: "password123" });
-        expect(result).toEqual(mockUser);
+        expect(result.user).toEqual(mockUser);
         expect(loginService.findUserByName).toHaveBeenCalledWith("testuser");
         expect(bcrypt.compare).toHaveBeenCalledWith("password123", mockUser.passwordHash);
     });

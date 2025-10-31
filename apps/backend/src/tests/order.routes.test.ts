@@ -11,6 +11,8 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 let supervisorToken: string;
 let costureroToken: string;
+let costurero: any;
+let supervisor: any;
 
 beforeEach(async () => {
   // Clear all collections
@@ -21,7 +23,7 @@ beforeEach(async () => {
   });
 
   // Crear supervisor (rol con permisos para crear y asignar órdenes)
-  const supervisor = await EmployeeModel.create({
+  supervisor = await EmployeeModel.create({
     name: 'Supervisor',
     surname: 'Test',
     documentNumber: '87654321',
@@ -41,7 +43,7 @@ beforeEach(async () => {
   );
 
   // Crear costurero (rol que solo puede actualizar o ver órdenes propias)
-  const costurero = await EmployeeModel.create({
+  costurero = await EmployeeModel.create({
     name: 'Costurero',
     surname: 'Test',
     documentNumber: '12345678',
@@ -168,23 +170,6 @@ describe('Order Routes', () => {
 
   describe('POST /api/orders/assign', () => {
     it('should assign an order to an employee successfully', async () => {
-      // First, create a test supervisor
-      const supervisorData = {
-        id: new mongoose.Types.ObjectId().toString(),
-        name: 'Test',
-        surname: 'Supervisor',
-        documentNumber: '87654321',
-        phone: '1234567890',
-        employeeType: 'Supervisor',  
-        username: 'test.supervisor',
-        password: 'test123',
-        isActive: true,  
-        email: 'supervisor@test.com',
-        address: '123 Test St'
-      };
-      const supervisor = await EmployeeModel.create(supervisorData);
-      
-
       // Create a test order
       const pendingOrder = await OrderModel.create({
             customerId: 'customer123',
@@ -196,27 +181,12 @@ describe('Order Routes', () => {
             deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         });
       
-      // Create a test employee (Costurero)
-      const employeeData = {
-        id: new mongoose.Types.ObjectId().toString(),
-        name: 'Test',
-        surname: 'Employee',
-        documentNumber: '12345678',
-        phone: '1234567890',
-        employeeType: 'Costurero',  // Must be 'Costurero' as per validation
-        username: 'test.employee',
-        password: 'test123',
-        isActive: true,  // Must be active
-        email: 'employee@test.com',
-        address: '456 Employee St'
-      };  
-      const employee = await EmployeeModel.create(employeeData);
-      
       const response = await request(app)
         .post('/api/orders/assign')
+        .set('Authorization', `Bearer ${supervisorToken}`)
         .send({
           orderId: pendingOrder._id.toString(),
-          employeeId: employee._id.toString(),
+          employeeId: costurero._id.toString(),
           assignedBySupervisorId: supervisor._id.toString(),
         });
 
@@ -229,14 +199,14 @@ describe('Order Routes', () => {
       expect(response.body).toHaveProperty('message', 'Order assigned successfully');
       expect(response.body).toHaveProperty('order');
       expect(response.body.order).toHaveProperty('id', pendingOrder._id.toString());
-      expect(response.body.order).toHaveProperty('employeeId', employee._id.toString());
+      expect(response.body.order).toHaveProperty('employeeId', costurero._id.toString());
       expect(response.body.order).toHaveProperty('status', OrderStatus.InProcess);
     });
     
-  
     it('should return 400 if orderId or employeeId is missing', async () => {
       const response = await request(app)
         .post('/api/orders/assign')
+        .set('Authorization', `Bearer ${supervisorToken}`)
         .send({});
 
       expect(response.status).toBe(400);
@@ -273,7 +243,8 @@ describe('Order Routes', () => {
       ]);
 
       const response = await request(app)
-        .get(`/api/orders/employee/${fakeEmployeeId}`);
+        .get(`/api/orders/employee/${fakeEmployeeId}`)
+        .set('Authorization', `Bearer ${costureroToken}`);
       console.log(response.body);
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body.orders)).toBe(true);
@@ -287,26 +258,10 @@ describe('Order Routes', () => {
   //Actualizar estado de una orden
   describe('POST /api/orders/update-status', () => {
     it('should update the status of an order', async () => {
-
-       // Create a test employee (Costurero)
-      const employeeData = {
-        id: new mongoose.Types.ObjectId().toString(),
-        name: 'Test',
-        surname: 'Employee',
-        documentNumber: '12345678',
-        phone: '1234567890',
-        employeeType: 'Costurero',  // Must be 'Costurero' as per validation
-        username: 'test.employee',
-        password: 'test123',
-        isActive: true,  // Must be active
-        email: 'employee@test.com',
-        address: '456 Employee St'
-      };  
-      const employee = await EmployeeModel.create(employeeData);
       // Create a test order
       const pendingOrder = await OrderModel.create({
             customerId: 'customer123',
-            employeeId: employee._id.toString(),
+            employeeId: costurero._id.toString(),
             orderDate: new Date(),
             status: OrderStatus.Pending,
             totalPrice: 100,
@@ -319,10 +274,11 @@ describe('Order Routes', () => {
       
       const response = await request(app)
         .post('/api/orders/update-status')
+        .set('Authorization', `Bearer ${costureroToken}`)
         .send({
           orderId: pendingOrder._id.toString(),
           newStatus: fakeNewStatus,
-          employeeId: employee._id.toString(),
+          employeeId: costurero._id.toString(),
         });
       console.log(response.body);
       expect(response.status).toBe(200);

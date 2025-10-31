@@ -1,13 +1,19 @@
 {
-    "extends":"../tsconfig.json",
-    "compilerOptions": {
-        "rootDir": "src",
-        "outDir": "dist",
-        "composite": true,
-        "declaration": true
-    },
-    "include": ["src"],
-    "references": [
-       {"path": "../domain"}
-    ]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@/domain/*": ["../../domain/src/*"],
+      "@/domain": ["../../domain/src"]
+    }
+  },
+  "references": [{ "path": "../../domain" }],
+  "include": ["src"]
 }

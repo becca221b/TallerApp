@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-export class User{
-    constructor(public id:number, public name:string){}
-
-    greet(){
-        return 'Hola soy ';
-    }
-}
-=======
 export type Role = 'admin' | 'employee' ;
 
 export interface User {
@@ -17,4 +8,3 @@ export interface User {
   email?: string,
 }
   
->>>>>>> backend

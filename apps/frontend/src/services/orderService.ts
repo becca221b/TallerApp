@@ -1,0 +1,41 @@
+import axiosClient from "../api/axiosClient";
+import { Order } from '@/domain/entities/Order.js';
+
+//Get: Obterner todas las órdenes
+const getOrders = async () => {
+    const response = await axiosClient.get("/orders");
+    return response.data;
+};
+
+//Get: Obterner todas las órdenes por empleado
+const getOrdersByEmployeeId = async (employeeId: string) => {
+    const response = await axiosClient.get(`/orders/employee/${employeeId}`);
+    return response.data;
+};
+
+//Post: Crear una orden
+const createOrder = async (order: Order) => {
+    const response = await axiosClient.post("/orders", order);
+    return response.data;
+};
+
+//Post: Asignar una orden a un empleado
+const assignOrder = async (order: Order) => {
+    const response = await axiosClient.post("/orders/assign", order);
+    return response.data;
+};
+
+//Put: Actualizar el estado de una orden
+const updateOrderStatus = async (orderId: string, status: string) => {
+    const response = await axiosClient.put(`/orders/${orderId}`, { status });
+    return response.data;
+};
+
+//Exportar las funciones
+export default {
+    getOrders,
+    getOrdersByEmployeeId,
+    createOrder,
+    assignOrder,
+    updateOrderStatus
+};

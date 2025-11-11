@@ -1,7 +1,20 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "paths": {
+        "@/domain/*": ["../../domain/src/*"],
+        "@/domain": ["../../domain/src"],
+        "@/backend/*": ["../backend/src/*"],
+        "@/backend": ["../backend/src"]
+    }
+  },
+  "references": [{ "path": "../../domain" }, { "path": "../backend" }],
+  "include": ["src"]
 }

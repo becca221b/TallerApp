@@ -16,10 +16,15 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
+    "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
+    "dom": "^0.0.3",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.553.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react": "^19.2.0",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.5",
+    "router": "^2.2.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.2",

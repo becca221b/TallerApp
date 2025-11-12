@@ -1,5 +1,5 @@
 import axiosClient from "../api/axiosClient";
-import { Order } from '@/domain/entities/Order.js';
+import { Order } from '../dtos/dto';
 
 //Get: Obterner todas las órdenes
 const getOrders = async () => {

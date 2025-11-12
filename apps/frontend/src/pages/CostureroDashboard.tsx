@@ -102,11 +102,12 @@ const CostureroDashboard = () =>{
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {orders.map((order) => (
+              order.id && (
               <Card key={order.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
-                    {getStatusBadge(order.status)}
+                    {getStatusBadge(order.status as string)}
                   </div>
                   {order.customerId && (
                     <p className="text-sm text-muted-foreground">{order.customerId}</p>
@@ -131,7 +132,7 @@ const CostureroDashboard = () =>{
                   )}
                   {order.status === 'in process' && (
                     <Button
-                      onClick={() => handleCompleteOrder(order.id)}
+                      onClick={() => order.id && handleCompleteOrder(order.id)}
                       size="sm"
                       className="w-full mt-4"
                     >
@@ -140,7 +141,7 @@ const CostureroDashboard = () =>{
                     </Button>
                   )}
                 </CardContent>
-              </Card>
+              </Card>)
             ))}
           </div>
         )}

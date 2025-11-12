@@ -18,21 +18,21 @@ export interface Garment {
   price: number;
   size: string;
   sex: 'M' | 'F' | 'U';
-  subtotal: number;
+  subtotal?: number;
 }
 
 export interface Order {
-    id: string;
+    id?: string;
     customerId: string;
-    employeeId: string;
+    employeeId?: string;
     customerName?: string;
     employeeName?: string;
     orderDetails: Garment[];
-    totalPrice: number;
+    totalPrice?: number;
     deliveryDate: string;
-    createdAt: string;
+    createdAt?: string;
     updatedAt?: string;
-    status: 'pending' | 'in process' | 'completed';
+    status?: 'pending' | 'in process' | 'completed';
 }
 
 export interface Employee {

@@ -21,7 +21,7 @@ const SupervisorDashboard = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showAssignForm, setShowAssignForm] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState('');
+    const [selectedOrderId, setSelectedOrderId] = useState('');
 
     useEffect(() => {
         if (!user) {
@@ -48,13 +48,77 @@ const SupervisorDashboard = () => {
         }
     };
 
-    const handleCreateOrder = () => {
-        setShowCreateForm(true);
+    const handleCreateOrder = async (e: React.FormEvent) => {
+      e.preventDefault();
+      const formData = new FormData(e.target as HTMLFormElement);
+      const customerId = formData.get('customerId') as string;
+      const deliveryDate = formData.get('deliveryDate') as string;
+      const quantity = Number(formData.get('quantity'));
+      const price = Number(formData.get('price'));
+      const sex = formData.get('sex') as string;
+      const size = formData.get('size') as string;
+
+      const validatedSex = (sex === 'M' || sex === 'F' || sex === 'U') ? sex : 'U'; // 'U' as default
+      
+      const customer = customers.find((c)=> c.id == customerId);
+      if(!customer){
+        toast.error('Selecciona un cliente');
+        return;
+      }
+
+      
+      
+      try {
+           await orderService.createOrder({
+            customerId: customer.id,
+            customerName: customer.name,
+            deliveryDate: new Date(deliveryDate).toISOString(),
+            orderDetails: [{
+              garmentId: '',
+              quantity,
+              price,
+              size: size,
+              sex: validatedSex,
+              
+            }],
+            
+            status: 'pending',
+           });
+           toast.success('Orden creada exitosamente');
+           setShowCreateForm(false);
+           (e.target as HTMLFormElement).reset();
+           loadData();
+      } catch (error) {
+           toast.error('Error al crear la orden');
+      }
     };
 
-    const handleAssignOrder = (orderId: string) => {
-        setSelectedOrder(orderId);
-        setShowAssignForm(true);
+    const handleAssignOrder = async(e: React.FormEvent) => {
+      e.preventDefault();
+      const formData = new FormData(e.target as HTMLFormElement);
+      const employeeId = formData.get('employeeId') as string;
+      
+      const employee = employees.find((emp)=>emp.id === employeeId);
+      if(!employee){
+        toast.error('Selecciona un empleado');
+        return;
+      }
+
+      if (!user) {
+        toast.error('No hay un usuario autenticado');
+        return;
+      }
+
+      try {
+        await orderService.assignOrder(selectedOrderId, employee.id, user.id);
+        toast.success('Orden asignada exitosamente');
+        setShowAssignForm(false);
+        setSelectedOrderId('');
+        (e.target as HTMLFormElement).reset();
+        loadData();
+      } catch (error) {
+        toast.error('Error al asignar la orden');
+      }
     };
 
     const handleLogout = () => {
@@ -62,7 +126,7 @@ const SupervisorDashboard = () => {
         navigate('/login');
     };
 
-    const getStatusBadge = (status: string) => {
+    const getStatusBadge = (status: Order['status']) => {
         const statusConfig = {
         pending: { label: 'Pendiente', variant: 'outline' as const },
         in_process: { label: 'En Proceso', variant: 'warning' as const },
@@ -72,6 +136,13 @@ const SupervisorDashboard = () => {
         return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
+    if (isLoading) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-muted-foreground">Cargando...</p>
+        </div>
+      );
+    }
     const getCustomerName = (customerId: string) => {
         const customer = customers.find((c) => c.id === customerId);
         return customer ? customer.name : 'Cliente Desconocido';
@@ -92,7 +163,7 @@ const SupervisorDashboard = () => {
         return employee ? employee.employeeType : 'Empleado Desconocido';
     };
 
-    const pendingOrders = orders.filter((o) => o.status === 'pending');
+  const pendingOrders = orders.filter((o) => o.status === 'pending');
   const inProcessOrders = orders.filter((o) => o.status === 'in process');
   const completedOrders = orders.filter((o) => o.status === 'completed');
 
@@ -257,6 +328,7 @@ const SupervisorDashboard = () => {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {pendingOrders.map((order) => (
+                  order.id && (
                   <Card key={order.id}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -278,8 +350,10 @@ const SupervisorDashboard = () => {
                       </div>
                       <Button
                         onClick={() => {
-                          setSelectedOrderId(order.id);
-                          setShowAssignForm(true);
+                          if (order.id) {
+                            setSelectedOrderId(order.id);
+                            setShowAssignForm(true);
+                          }
                         }}
                         size="sm"
                         className="w-full mt-4"
@@ -289,7 +363,7 @@ const SupervisorDashboard = () => {
                         Asignar Costurero
                       </Button>
                     </CardContent>
-                  </Card>
+                  </Card>)
                 ))}
               </div>
             )}
@@ -302,6 +376,7 @@ const SupervisorDashboard = () => {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {inProcessOrders.map((order) => (
+                  order.id && (
                   <Card key={order.id}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -322,7 +397,7 @@ const SupervisorDashboard = () => {
                         <span className="font-medium">{order.orderDetails.length}</span>
                       </div>
                     </CardContent>
-                  </Card>
+                  </Card>)
                 ))}
               </div>
             )}
@@ -335,6 +410,7 @@ const SupervisorDashboard = () => {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {completedOrders.map((order) => (
+                  order.id && (
                   <Card key={order.id}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -355,7 +431,7 @@ const SupervisorDashboard = () => {
                         <span className="font-medium">{order.orderDetails.length}</span>
                       </div>
                     </CardContent>
-                  </Card>
+                  </Card>)
                 ))}
               </div>
             )}

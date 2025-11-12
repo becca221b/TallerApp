@@ -20,8 +20,8 @@ const createOrder = async (order: Order) => {
 };
 
 //Post: Asignar una orden a un empleado
-const assignOrder = async (order: Order) => {
-    const response = await axiosClient.post("/orders/assign", order);
+const assignOrder = async (orderId: string, employeeId: string, supervisorId:string) => {
+    const response = await axiosClient.post("/orders/assign", {orderId, employeeId});
     return response.data;
 };
 

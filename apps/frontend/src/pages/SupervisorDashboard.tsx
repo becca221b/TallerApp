@@ -2,11 +2,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import orderService from "../services/orderService";
-import customerService from "../services/customerService";
+import customerService from '../services/curstomerService';
 import employeeService from "../services/employeeService";
-import { Order, OrderStatus } from '@/domain/entities/Order';
-import { Employee } from '@/domain/entities/Employee';
-import { Customer } from '@/domain/entities/Customer';
+import { Order, Employee, Garment, Customer } from '../dtos/dto';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/card.js';
 import { Button } from "../components/button.js";
 import { Badge } from "../components/badge.js";
@@ -76,7 +74,7 @@ const SupervisorDashboard = () => {
 
     const getCustomerName = (customerId: string) => {
         const customer = customers.find((c) => c.id === customerId);
-        return customer ? customer.customerName : 'Cliente Desconocido';
+        return customer ? customer.name : 'Cliente Desconocido';
     };
 
     const getEmployeeName = (employeeId: string) => {
@@ -138,7 +136,7 @@ const SupervisorDashboard = () => {
                     <option value="">Selecciona un cliente</option>
                     {customers.map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.customerName}
+                        {customer.name}
                       </option>
                     ))}
                   </select>
@@ -263,7 +261,7 @@ const SupervisorDashboard = () => {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
-                        {getStatusBadge(order.status as OrderStatus)}
+                        {getStatusBadge(order.status)}
                       </div>
                       {getCustomerName(order.customerId) && (
                         <p className="text-sm text-muted-foreground">{getCustomerName(order.customerId)}</p>
@@ -308,7 +306,7 @@ const SupervisorDashboard = () => {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
-                        {getStatusBadge(order.status as OrderStatus)}
+                        {getStatusBadge(order.status)}
                       </div>
                       {getCustomerName(order.customerId) && (
                         <p className="text-sm text-muted-foreground">{getCustomerName(order.customerId)}</p>
@@ -341,7 +339,7 @@ const SupervisorDashboard = () => {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
-                        {getStatusBadge(order.status as OrderStatus)}
+                        {getStatusBadge(order.status)}
                       </div>
                       {getCustomerName(order.customerId) && (
                         <p className="text-sm text-muted-foreground">{getCustomerName(order.customerId)}</p>

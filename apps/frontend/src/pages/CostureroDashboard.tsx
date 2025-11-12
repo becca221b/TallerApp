@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import orderService from "../services/orderService";
-import { Order, OrderStatus } from '@/domain/entities/Order.js';
+import { Order } from '../dtos/dto';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/card.js';
 import { Button } from "../components/button.js";
 import { Badge } from "../components/badge.js";
 import { Alert, AlertDescription, AlertTitle } from "../components/alert.js";
 import { LogOut, CheckCircle } from "lucide-react";
 import { toast } from 'sonner';
+
 
 const CostureroDashboard = () =>{
     const { user, logout } = useAuth();
@@ -105,7 +106,7 @@ const CostureroDashboard = () =>{
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
-                    {getStatusBadge(order.status as OrderStatus)}
+                    {getStatusBadge(order.status)}
                   </div>
                   {order.customerId && (
                     <p className="text-sm text-muted-foreground">{order.customerId}</p>

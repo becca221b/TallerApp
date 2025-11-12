@@ -1,5 +1,5 @@
-import axiosClient from "src/api/axiosClient";
-import { Employee } from "src/dtos/dto";
+import axiosClient from "../api/axiosClient";
+import { Employee } from "../dtos/dto";
 
 //Get: Obterner todos los empleados
 const getEmployees = async () => {

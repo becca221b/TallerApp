@@ -1,5 +1,5 @@
-import axiosClient from "src/api/axiosClient";
-import { Customer } from "src/dtos/dto";
+import axiosClient from "../api/axiosClient";
+import { Customer } from "../dtos/dto";
 
 //Get customers
 const getCustomers = async () =>{

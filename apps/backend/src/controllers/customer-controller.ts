@@ -48,6 +48,16 @@ export class CustomerController {
             res.status(500).json({ error: 'Internal server error while fetching customer' });
         }
     }
+
+    async getAllCustomers(req: Request, res: Response) {
+        try {
+            const customers = await this.customerRepository.findAllCustomers();
+            res.status(200).json(customers);
+        } catch (error) {
+            console.error('Error getting all customers:', error);
+            res.status(500).json({ error: 'Internal server error while fetching customers' });
+        }
+    }
 }
 
 // Factory function to create the controller with dependencies

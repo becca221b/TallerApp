@@ -14,4 +14,9 @@ export class CustomerRepository implements CustomerService {
         return customer ? customer.toJSON() as Customer : null;
     }
 
+    async findAllCustomers(): Promise<Customer[]> {
+        const customers = await CustomerModel.find().exec();
+        return customers.map(customer => customer.toJSON() as Customer);
+    }
+
 }

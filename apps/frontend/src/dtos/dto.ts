@@ -1,7 +1,7 @@
 export interface User{
     id: string;
     username: string,
-    role: 'Costurero' | 'Supervisor';
+    role: 'costurero' | 'supervisor';
     token?: string;
 }
 
@@ -40,7 +40,7 @@ export interface Employee {
     name: string;
     email?: string;
     phone?: string;
-    employeeType: 'Costurero' | 'Supervisor';
+    employeeType: 'costurero' | 'supervisor';
     username: string;
     password: string;
 }

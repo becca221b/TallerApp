@@ -40,7 +40,7 @@ export class AssignOrder {
         }
 
         // Validate that the employee is a costurero (sewing employee)
-        if (employee.employeeType !== 'Costurero') {
+        if (employee.employeeType !== 'costurero') {
             throw new Error('Orders can only be assigned to sewing employees (Costurero)');
         }
 
@@ -87,8 +87,8 @@ export class AssignOrder {
         }
 
         // Validate that the employee is a costurero (sewing employee)
-        if (employee.employeeType !== 'Costurero') {
-            throw new Error('Orders can only be assigned to sewing employees (Costurero)');
+        if (employee.employeeType !== 'costurero') {
+            throw new Error('Orders can only be assigned to sewing employees (costurero)');
         }
 
         // Validate order status - can reassign pending or in-process orders
@@ -164,7 +164,7 @@ export class AssignOrder {
             throw new Error('Supervisor is not active');
         }
 
-        if (supervisor.employeeType !== 'Supervisor') {
+        if (supervisor.employeeType !== 'supervisor') {
             throw new Error('Only supervisors can assign orders');
         }
     }

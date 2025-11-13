@@ -9,7 +9,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: 'Supervisor' | 'Costurero' }) => {
+const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: 'supervisor' | 'costurero' }) => {
   const { isAuthenticated, user } = useAuth();
   
   if (!isAuthenticated) {
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
   }
 
   if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to={user?.role ===  'Supervisor' ? '/supervisor' : '/costurero'} replace />;
+    return <Navigate to={user?.role ===  'supervisor' ? '/supervisor' : '/costurero'} replace />;
   }
 
   return <>{children}</>;
@@ -33,7 +33,7 @@ const App = () => (
           <Route 
             path="/costurero" 
             element={
-              <ProtectedRoute requiredRole="Costurero">
+              <ProtectedRoute requiredRole="costurero">
                 <CostureroDashboard />
               </ProtectedRoute>
             } 
@@ -41,7 +41,7 @@ const App = () => (
           <Route 
             path="/supervisor" 
             element={
-              <ProtectedRoute requiredRole="Supervisor">
+              <ProtectedRoute requiredRole="supervisor">
                 <SupervisorDashboard />
               </ProtectedRoute>
             } 

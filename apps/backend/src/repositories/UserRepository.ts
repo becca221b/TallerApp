@@ -30,7 +30,7 @@ export class UserRepository implements UserService {
             id: user._id.toString(),
             username: user.username,
             passwordHash: user.passwordHash,
-            role: user.role as 'admin' | 'employee',
+            role: user.role as 'supervisor' | 'costurero',
             ...(user.email && { email: user.email })
         };
     }
@@ -43,7 +43,7 @@ export class UserRepository implements UserService {
             id: user._id.toString(),
             username: user.username,
             passwordHash: user.passwordHash,
-            role: user.role as 'admin' | 'employee',
+            role: user.role as 'supervisor' | 'costurero',
             ...(user.email && { email: user.email })
         };
     }
@@ -54,7 +54,7 @@ export class UserRepository implements UserService {
             id: user._id.toString(),
             username: user.username,
             passwordHash: user.passwordHash,
-            role: user.role as 'admin' | 'employee',
+            role: user.role as 'supervisor' | 'costurero',
             ...(user.email && { email: user.email })
         }));
     }
@@ -74,7 +74,7 @@ export class UserRepository implements UserService {
             id: updatedUser._id.toString(),
             username: updatedUser.username,
             passwordHash: updatedUser.passwordHash,
-            role: updatedUser.role as 'admin' | 'employee',
+            role: updatedUser.role as 'supervisor' | 'costurero',
             ...(updatedUser.email && { email: updatedUser.email })
         };
     }

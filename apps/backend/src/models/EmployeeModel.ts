@@ -10,7 +10,7 @@ const EmployeeSchema = new Schema<Employee>({
     isActive: { type: Boolean, default: true },
     employeeType: { 
         type: String,
-        enum: ['Costurero', 'Cortador', 'Supervisor'],
+        enum: ['costurero', 'cortador', 'supervisor'],
         required: true 
     },
     username: { type: String },

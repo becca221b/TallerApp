@@ -80,4 +80,13 @@ export class OrderController {
             res.status(400).json({ message: error.message });
         }
     }
+
+    async getOrders(req: Request, res: Response):Promise<void> {
+        try {
+            const orders = await this.orderRepository.findAllOrders();
+            res.status(200).json({ orders });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }

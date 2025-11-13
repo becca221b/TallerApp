@@ -18,5 +18,6 @@ router.post("/", authenticate, authorize("supervisor") ,(req, res) => orderContr
 router.post("/assign", authenticate, authorize("Supervisor"), (req, res) => orderController.assignOrder(req, res));
 router.get("/employee/:employeeId", authenticate, (req, res) => orderController.getOrdersByEmployeeId(req, res));
 router.post("/update-status", authenticate, (req, res) => orderController.updateOrderStatus(req, res));
+router.get("/", authenticate, (req, res) => orderController.getOrders(req, res));
 
 export default router;

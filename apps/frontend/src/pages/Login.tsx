@@ -101,7 +101,7 @@ const Login = () => {
                 <p className="font-medium">Usuarios de prueba:</p>
                 <p>Costurero: <code className="bg-muted px-2 py-1 rounded">costurero</code></p>
                 <p>Supervisor: <code className="bg-muted px-2 py-1 rounded">supervisor</code></p>
-                <p className="text-xs">(Cualquier contraseña funciona en modo demo)</p>
+                <p>password: 123456</p>
               </div>
             </form>
           </CardContent>

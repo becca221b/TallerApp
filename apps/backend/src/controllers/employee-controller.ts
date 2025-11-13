@@ -57,7 +57,7 @@ export class EmployeeController {
             }
 
             // Validate employee type
-            if (!['Costurero', 'Cortador', 'Supervisor'].includes(type)) {
+            if (!['costurero', 'cortador', 'supervisor'].includes(type)) {
                 return res.status(400).json({ error: 'Invalid employee type' });
             }
 

@@ -13,9 +13,9 @@ export class OrderController {
         
     async createOrder(req: Request, res: Response):Promise<void> {
          try {
-            const { customerId, employeeId, deliveryDate, garments } = req.body;
+            const { customerId, employeeId, deliveryDate, orderDetail } = req.body;
             
-            if (!customerId || !employeeId || !deliveryDate || !Array.isArray(garments)) {
+            if (!customerId || !employeeId || !deliveryDate || !Array.isArray(orderDetail)) {
                 throw new Error('Missing required fields. Required: customerId, employeeId, deliveryDate, garments[]');
             }
 
@@ -25,7 +25,7 @@ export class OrderController {
             );
 
             const orderDetails = await Promise.all(
-            garments.map(garment => 
+            orderDetail.map(garment => 
                 createOrder.createOrderDetail({
                     garmentId: garment.garmentId,
                     quantity: garment.quantity,

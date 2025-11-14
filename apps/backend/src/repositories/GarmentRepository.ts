@@ -50,4 +50,22 @@ export class GarmentRepository implements GarmentService {
         
         return garment.price;
     }
+
+    async findAllGarments(): Promise<Garment[]> {
+        const garments = await GarmentModel.find();
+        return garments.map((garment) => ({
+            id: garment._id.toString(),
+            name: garment.name,
+            description: garment.description,
+            price: garment.price,
+            color: garment.color,
+            imageUrl: garment.imageUrl,
+            neck: garment.neck,
+            cuff: garment.cuff,
+            flap: garment.flap,
+            zipper: garment.zipper,
+            pocket: garment.pocket,
+            waist: garment.waist, 
+        }));
+    }
 }

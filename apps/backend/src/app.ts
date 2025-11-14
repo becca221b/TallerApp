@@ -4,7 +4,7 @@ import authRoutes from "./routes/auth.routes";
 import orderRoutes from "./routes/order.routes";
 import customerRoutes from "./routes/customer.routes";
 import employeeRoutes from "./routes/employee.routes";
-
+import garmentRoutes from "./routes/garment.routes";
 
 const app = express();
 
@@ -24,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/garments", garmentRoutes);
 
 //Test endpoint
 app.get("/", (req, res) => res.json({ ok: true, message: "Backend de TallerApp" }));

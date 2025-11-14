@@ -14,6 +14,7 @@ export interface Customer{
 
 export interface Garment {
   garmentId: string;
+  garmentName: string;
   quantity: number;
   price: number;
   size: string;

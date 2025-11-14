@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import orderService from "../services/orderService";
 import customerService from '../services/curstomerService';
 import employeeService from "../services/employeeService";
+import garmentService from "../services/garmentService";
 import { Order, Employee, Garment, Customer } from '../dtos/dto';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/card.js';
 import { Button } from "../components/button.js";
@@ -18,6 +19,7 @@ const SupervisorDashboard = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [employees, setEmployees] = useState<Employee[]>([]);
+    const [garments, setGarments] = useState<Garment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showAssignForm, setShowAssignForm] = useState(false);
@@ -33,14 +35,16 @@ const SupervisorDashboard = () => {
 
     const loadData = async () => {
         try {
-            const [ordersResponse, customersResponse, employeesResponse] = await Promise.all([
+            const [ordersResponse, customersResponse, employeesResponse, garmentsResponse] = await Promise.all([
                 orderService.getOrders(),
                 customerService.getCustomers(),
                 employeeService.getEmployees(),
+                garmentService.getGarments(),
             ]);
             setOrders(ordersResponse.orders);
             setCustomers(customersResponse);
             setEmployees(employeesResponse.employees);
+            setGarments(garmentsResponse);
             setIsLoading(false);
         } catch (error) {
             console.error('Error al cargar los datos:', error);
@@ -60,15 +64,20 @@ const SupervisorDashboard = () => {
       const sex = formData.get('sex') as string;
       const size = formData.get('size') as string;
 
-      //console.log('Form values:', { customerName, deliveryDate, quantity, price, sex, size }); // Debug log
 
-      const validatedSex = (sex === 'M' || sex === 'F' || sex === 'U') ? sex : 'U'; // 'U' as default
+      const validatedSex = (sex === 'M' || sex === 'F' || sex === 'U') ? sex : 'U';
       
       const customer = customers.find((c) => c.id === customerId);
+      const garment = garments.find((g) => g.garmentId === garmentId);
     
 
       if(!customer){
         toast.error('Selecciona un cliente');
+        return;
+      }
+
+      if(!garment){
+        toast.error('Selecciona una prenda');
         return;
       }
 
@@ -77,7 +86,8 @@ const SupervisorDashboard = () => {
             customerId: customer.id,
             deliveryDate: new Date(deliveryDate).toISOString(),
             orderDetails: [{
-              garmentId: '6914fdebb359947602cd2413',
+              garmentId: garment.garmentId,
+              garmentName: garment.garmentName,
               quantity: quantity,
               size: size,
               sex: validatedSex,
@@ -197,7 +207,21 @@ const SupervisorDashboard = () => {
                     ))}
                   </select>
                 </div>
-
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Prenda</label>
+                  <select
+                    name="garmentId"
+                    required
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Selecciona una prenda</option>
+                    {garments && garments.map((garment) => (
+                      <option key={garment.garmentId} value={garment.garmentId}>
+                        {garment.garmentName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Fecha de Entrega</label>
                   <input
@@ -236,7 +260,6 @@ const SupervisorDashboard = () => {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Size Selection */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Talla</label>
                     <select
@@ -252,7 +275,6 @@ const SupervisorDashboard = () => {
                     </select>
                   </div>
 
-                  {/* Sex Selection */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Sexo</label>
                     <select

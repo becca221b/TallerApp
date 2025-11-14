@@ -13,10 +13,16 @@ export class OrderController {
         
     async createOrder(req: Request, res: Response):Promise<void> {
          try {
-            const { customerId, employeeId, deliveryDate, orderDetail } = req.body;
+            const { customerId, employeeId, deliveryDate, orderDetails } = req.body;
             
-            if (!customerId || !employeeId || !deliveryDate || !Array.isArray(orderDetail)) {
-                throw new Error('Missing required fields. Required: customerId, employeeId, deliveryDate, garments[]');
+            if (!customerId) {
+                throw new Error('Missing required field: customerId');
+            }
+            if (!deliveryDate) {
+                throw new Error('Missing required field: deliveryDate');
+            }
+            if (!Array.isArray(orderDetails) || orderDetails.length === 0) {
+                throw new Error('Invalid or empty order details array');
             }
 
             const createOrder = new CreateOrder(
@@ -24,8 +30,8 @@ export class OrderController {
                 this.garmentRepository
             );
 
-            const orderDetails = await Promise.all(
-            orderDetail.map(garment => 
+            const orderDetail = await Promise.all(
+            orderDetails.map(garment => 
                 createOrder.createOrderDetail({
                     garmentId: garment.garmentId,
                     quantity: garment.quantity,

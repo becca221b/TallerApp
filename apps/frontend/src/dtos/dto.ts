@@ -7,7 +7,7 @@ export interface User{
 
 export interface Customer{
     id:string;
-    name: string;
+    customerName: string;
     email?: string;
     phone?: string;
 }

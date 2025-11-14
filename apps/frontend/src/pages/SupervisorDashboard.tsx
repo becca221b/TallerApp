@@ -38,9 +38,9 @@ const SupervisorDashboard = () => {
                 customerService.getCustomers(),
                 employeeService.getEmployees(),
             ]);
-            setOrders(ordersResponse);
+            setOrders(ordersResponse.orders);
             setCustomers(customersResponse);
-            setEmployees(employeesResponse);
+            setEmployees(employeesResponse.employees);
             setIsLoading(false);
         } catch (error) {
             console.error('Error al cargar los datos:', error);
@@ -50,40 +50,43 @@ const SupervisorDashboard = () => {
 
     const handleCreateOrder = async (e: React.FormEvent) => {
       e.preventDefault();
+      
       const formData = new FormData(e.target as HTMLFormElement);
       const customerId = formData.get('customerId') as string;
+      const garmentId = formData.get('garmentId') as string;
       const deliveryDate = formData.get('deliveryDate') as string;
       const quantity = Number(formData.get('quantity'));
       const price = Number(formData.get('price'));
       const sex = formData.get('sex') as string;
       const size = formData.get('size') as string;
 
+      //console.log('Form values:', { customerName, deliveryDate, quantity, price, sex, size }); // Debug log
+
       const validatedSex = (sex === 'M' || sex === 'F' || sex === 'U') ? sex : 'U'; // 'U' as default
       
-      const customer = customers.find((c)=> c.id == customerId);
+      const customer = customers.find((c) => c.id === customerId);
+    
+
       if(!customer){
         toast.error('Selecciona un cliente');
         return;
       }
 
-      
-      
       try {
            await orderService.createOrder({
             customerId: customer.id,
-            customerName: customer.name,
             deliveryDate: new Date(deliveryDate).toISOString(),
             orderDetails: [{
-              garmentId: '',
-              quantity,
-              price,
+              garmentId: '6914fdebb359947602cd2413',
+              quantity: quantity,
               size: size,
               sex: validatedSex,
+              price: price,
               
             }],
-            
             status: 'pending',
            });
+       
            toast.success('Orden creada exitosamente');
            setShowCreateForm(false);
            (e.target as HTMLFormElement).reset();
@@ -128,9 +131,9 @@ const SupervisorDashboard = () => {
 
     const getStatusBadge = (status: Order['status']) => {
         const statusConfig = {
-        pending: { label: 'Pendiente', variant: 'outline' as const },
-        in_process: { label: 'En Proceso', variant: 'warning' as const },
-        completed: { label: 'Completado', variant: 'success' as const },
+        'pending': { label: 'Pendiente', variant: 'outline' as const },
+        'in process': { label: 'En Proceso', variant: 'warning' as const },
+        'completed': { label: 'Completado', variant: 'success' as const },
         };
         const config = statusConfig[status as keyof typeof statusConfig];
         return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -143,25 +146,7 @@ const SupervisorDashboard = () => {
         </div>
       );
     }
-    const getCustomerName = (customerId: string) => {
-        const customer = customers.find((c) => c.id === customerId);
-        return customer ? customer.name : 'Cliente Desconocido';
-    };
 
-    const getEmployeeName = (employeeId: string) => {
-        const employee = employees.find((e) => e.id === employeeId);
-        return employee ? employee.name : 'Empleado Desconocido';
-    };
-
-    const getEmployeeUsername = (employeeId: string) => {
-        const employee = employees.find((e) => e.id === employeeId);
-        return employee ? employee.username : 'Empleado Desconocido';
-    };
-
-    const getEmployeeRole = (employeeId: string) => {
-        const employee = employees.find((e) => e.id === employeeId);
-        return employee ? employee.employeeType : 'Empleado Desconocido';
-    };
 
   const pendingOrders = orders.filter((o) => o.status === 'pending');
   const inProcessOrders = orders.filter((o) => o.status === 'in process');
@@ -207,7 +192,7 @@ const SupervisorDashboard = () => {
                     <option value="">Selecciona un cliente</option>
                     {customers.map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.name}
+                        {customer.customerName}
                       </option>
                     ))}
                   </select>
@@ -249,7 +234,39 @@ const SupervisorDashboard = () => {
                     />
                   </div>
                 </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Size Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Talla</label>
+                    <select
+                      name="size"
+                      required
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <option value="">Selecciona una talla</option>
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                    </select>
+                  </div>
 
+                  {/* Sex Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Sexo</label>
+                    <select
+                      name="sex"
+                      required
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <option value="">Selecciona sexo</option>
+                      <option value="M">Masculino</option>
+                      <option value="F">Femenino</option>
+                      <option value="U">Unisex</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="flex gap-2">
                   <Button type="submit">Crear Orden</Button>
                   <Button type="button" variant="outline" onClick={() => setShowCreateForm(false)}>
@@ -335,8 +352,8 @@ const SupervisorDashboard = () => {
                         <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
                         {getStatusBadge(order.status)}
                       </div>
-                      {getCustomerName(order.customerId) && (
-                        <p className="text-sm text-muted-foreground">{getCustomerName(order.customerId)}</p>
+                      {order.customerName && (
+                        <p className="text-sm text-muted-foreground">{order.customerName}</p>
                       )}
                     </CardHeader>
                     <CardContent className="space-y-2">
@@ -383,8 +400,8 @@ const SupervisorDashboard = () => {
                         <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
                         {getStatusBadge(order.status)}
                       </div>
-                      {getCustomerName(order.customerId) && (
-                        <p className="text-sm text-muted-foreground">{getCustomerName(order.customerId)}</p>
+                      {order.customerName && (
+                        <p className="text-sm text-muted-foreground">{order.customerName}</p>
                       )}
                     </CardHeader>
                     <CardContent className="space-y-2">
@@ -417,8 +434,8 @@ const SupervisorDashboard = () => {
                         <CardTitle className="text-lg">Orden #{order.id.slice(-6)}</CardTitle>
                         {getStatusBadge(order.status)}
                       </div>
-                      {getCustomerName(order.customerId) && (
-                        <p className="text-sm text-muted-foreground">{getCustomerName(order.customerId)}</p>
+                      {order.customerName && (
+                        <p className="text-sm text-muted-foreground">{order.customerName}</p>
                       )}
                     </CardHeader>
                     <CardContent className="space-y-2">

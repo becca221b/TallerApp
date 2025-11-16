@@ -13,12 +13,21 @@ export interface Customer{
 }
 
 export interface Garment {
-  garmentId: string;
-  garmentName: string;
-  quantity: number;
+  id: string;
+  name: string;
+  description?: string;
   price: number;
-  size: string;
-  sex: 'M' | 'F' | 'U';
+  color?: string;
+  imageUrl?: string;
+  neck?: string;
+  cuff?: string;
+  flap?: string;
+  zipper?: string;
+  pocket?: string;
+  waist?: string;
+  quantity?: number;
+  size?: string;
+  sex?: 'M' | 'F' | 'U';
   subtotal?: number;
 }
 

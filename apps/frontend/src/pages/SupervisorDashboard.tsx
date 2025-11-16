@@ -68,7 +68,7 @@ const SupervisorDashboard = () => {
       const validatedSex = (sex === 'M' || sex === 'F' || sex === 'U') ? sex : 'U';
       
       const customer = customers.find((c) => c.id === customerId);
-      const garment = garments.find((g) => g.garmentId === garmentId);
+      const garment = garments.find((g) => g.id === garmentId);
     
 
       if(!customer){
@@ -86,8 +86,8 @@ const SupervisorDashboard = () => {
             customerId: customer.id,
             deliveryDate: new Date(deliveryDate).toISOString(),
             orderDetails: [{
-              garmentId: garment.garmentId,
-              garmentName: garment.garmentName,
+              id: garmentId,
+              name: garment.name,
               quantity: quantity,
               size: size,
               sex: validatedSex,
@@ -215,9 +215,9 @@ const SupervisorDashboard = () => {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <option value="">Selecciona una prenda</option>
-                    {garments && garments.map((garment) => (
-                      <option key={garment.garmentId} value={garment.garmentId}>
-                        {garment.garmentName}
+                    {garments.map((garment) => (
+                      <option key={garment.id} value={garment.id}>
+                        {garment.name}
                       </option>
                     ))}
                   </select>

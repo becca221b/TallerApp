@@ -45,9 +45,10 @@ export class GarmentRepository implements GarmentService {
     }
 
     async findGarmentPriceById(id: string): Promise<number | null> {
-        const garment = await GarmentModel.findById(id);
-        if (!garment) return null;
-        
+        const garment = await GarmentModel.findById(id);    
+        if (!garment) {
+            return null;
+        }
         return garment.price;
     }
 

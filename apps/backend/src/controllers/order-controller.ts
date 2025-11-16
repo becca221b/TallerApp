@@ -33,11 +33,11 @@ export class OrderController {
             const orderDetail = await Promise.all(
             orderDetails.map(garment => 
                 createOrder.createOrderDetail({
-                    garmentId: garment.garmentId,
+                    id: garment.id,
                     quantity: garment.quantity,
                     size: garment.size,
                     sex: garment.sex,
-                    subtotal: garment.subtotal
+                    subtotal: garment.price
                 })
             )
             );

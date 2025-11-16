@@ -4,7 +4,6 @@ import { Order } from '../dtos/dto';
 //Get: Obterner todas las órdenes
 const getOrders = async () => {
     const response = await axiosClient.get("/orders");
-    console.log(response.data);
     return response.data;
 };
 

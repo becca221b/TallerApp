@@ -48,6 +48,7 @@ export interface Order {
 export interface Employee {
     id: string;
     name: string;
+    surname: string;
     email?: string;
     phone?: string;
     employeeType: 'costurero' | 'supervisor';

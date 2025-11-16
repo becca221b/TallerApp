@@ -43,7 +43,7 @@ const SupervisorDashboard = () => {
             ]);
             setOrders(ordersResponse.orders);
             setCustomers(customersResponse);
-            setEmployees(employeesResponse.employees);
+            setEmployees(employeesResponse);
             setGarments(garmentsResponse);
             setIsLoading(false);
         } catch (error) {
@@ -318,7 +318,7 @@ const SupervisorDashboard = () => {
                     <option value="">Selecciona un costurero</option>
                     {employees.map((employee) => (
                       <option key={employee.id} value={employee.id}>
-                        {employee.username}
+                        {employee.name+" "+employee.surname}
                       </option>
                     ))}
                   </select>

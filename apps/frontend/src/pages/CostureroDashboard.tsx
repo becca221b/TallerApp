@@ -41,7 +41,9 @@ const CostureroDashboard = () =>{
 
     const handleCompleteOrder = async(orderId: string) =>{
         try {
-            await orderService.updateOrderStatus(orderId, 'Completada');
+            if (!user) return;
+            const userLogged = await employeeService.getEmployeeByUsername(user.username);
+            await orderService.updateOrderStatus(orderId, 'completed', userLogged.id);
             toast.success('Orden completada exitosamente');
             loadOrders();
         } catch (error) {

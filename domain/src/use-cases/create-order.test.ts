@@ -38,7 +38,7 @@ describe('CreateOrder Use Case', () => {
             createOrderUseCase = new CreateOrder(mockOrderService, garmentServiceMock);
             
             const params: CreateOrderDetailParams = {
-                garmentId: 'garment-123',
+                id: 'garment-123',
                 quantity: 2,
                 size: 'M',
                 sex: 'F',
@@ -59,7 +59,7 @@ describe('CreateOrder Use Case', () => {
 
         it('should validate OrderDetail parameters', async () => {
             const invalidParams: CreateOrderDetailParams = {
-                garmentId: '',
+                id: '',
                 quantity: 0,
                 size: 'M',
                 sex: 'F',
@@ -398,7 +398,7 @@ describe('CreateOrder Use Case', () => {
 
             // Step 1: Create OrderDetails first
             const garment1 = await createOrderUseCase.createOrderDetail({
-                garmentId: 'shirt-001',
+                id: 'shirt-001',
                 quantity: 2,
                 size: 'M',
                 sex: 'M',
@@ -406,7 +406,7 @@ describe('CreateOrder Use Case', () => {
             });
 
             const garment2 = await createOrderUseCase.createOrderDetail({
-                garmentId: 'pants-001',
+                id: 'pants-001',
                 quantity: 1,
                 size: 'L',
                 sex: 'F',
@@ -473,7 +473,7 @@ describe('CreateOrder Use Case', () => {
 
             // Step 1: Supervisor creates OrderDetails first (garment specifications)
             const shirtDetail = await createOrderUseCase.createOrderDetail({
-                garmentId: 'garment-shirt',
+                id: 'garment-shirt',
                 quantity: 3,
                 size: 'M',
                 sex: 'M',
@@ -481,7 +481,7 @@ describe('CreateOrder Use Case', () => {
             });
 
             const pantsDetail = await createOrderUseCase.createOrderDetail({
-                garmentId: 'garment-pants',
+                id: 'garment-pants',
                 quantity: 2,
                 size: 'L',
                 sex: 'F',
@@ -545,7 +545,7 @@ describe('CreateOrder Use Case', () => {
             let updatedOrder = order;
             for (let i = 1; i <= 10; i++) {
                 const garmentDetail = await createOrderUseCase.createOrderDetail({
-                    garmentId: `garment-${i}`,
+                    id: `garment-${i}`,
                     quantity: i,
                     size: ['S', 'M', 'L', 'XL'][i % 4] as orderSize,
                     sex: i % 2 === 0 ? 'F' : 'M',
@@ -610,7 +610,7 @@ describe('CreateOrder Use Case', () => {
 
             // Create order details with different sizes and sexes
             const garment1 = await createOrderUseCase.createOrderDetail({
-                garmentId: 'shirt-s-m',
+                id: 'shirt-s-m',
                 quantity: 2,
                 size: 'S',
                 sex: 'M',
@@ -618,7 +618,7 @@ describe('CreateOrder Use Case', () => {
             });
 
             const garment2 = await createOrderUseCase.createOrderDetail({
-                garmentId: 'shirt-l-f',
+                id: 'shirt-l-f',
                 quantity: 1,
                 size: 'L',
                 sex: 'F',
@@ -626,7 +626,7 @@ describe('CreateOrder Use Case', () => {
             });
 
             const garment3 = await createOrderUseCase.createOrderDetail({
-                garmentId: 'jacket-xl-m',
+                id: 'jacket-xl-m',
                 quantity: 1,
                 size: 'XL',
                 sex: 'M',

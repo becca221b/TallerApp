@@ -78,9 +78,9 @@ export class OrderController {
 
     async updateOrderStatus(req: Request, res: Response):Promise<void> {
         try {
-            const { orderId, newStatus, employeeId } = req.body;
+            const { orderId, status, employeeId } = req.body;
             
-            const order = await new UpdateOrderStatus(this.orderRepository, this.employeeRepository).execute(orderId, newStatus, employeeId);
+            const order = await new UpdateOrderStatus(this.orderRepository, this.employeeRepository).execute(orderId, status, employeeId);
             res.status(200).json({ message: "Order status updated successfully", order });
         } catch (error: any) {
             res.status(400).json({ message: error.message });

@@ -107,6 +107,7 @@ const SupervisorDashboard = () => {
     };
 
     const handleAssignOrder = async(e: React.FormEvent) => {
+      console.log('hola');
       e.preventDefault();
       const formData = new FormData(e.target as HTMLFormElement);
       const employeeId = formData.get('employeeId') as string;
@@ -123,7 +124,9 @@ const SupervisorDashboard = () => {
       }
 
       try {
-        await orderService.assignOrder(selectedOrderId, employee.id, user.id);
+        const userLogged = await employeeService.getEmployeeByUsername(user.username);
+        console.log(userLogged.id);
+        await orderService.assignOrder(selectedOrderId, employee.id, userLogged.id);
         toast.success('Orden asignada exitosamente');
         setShowAssignForm(false);
         setSelectedOrderId('');

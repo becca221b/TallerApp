@@ -3,6 +3,9 @@ export interface User{
     username: string,
     role: 'costurero' | 'supervisor';
     token?: string;
+    employeeId: string;
+    employeeName?: string;
+    employeeSurname?: string;
 }
 
 export interface Customer{

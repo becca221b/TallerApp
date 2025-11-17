@@ -7,4 +7,5 @@ export interface EmployeeService {
     updateEmployee(id: string, employee: Partial<Employee>): Promise<Employee | null>;
     deleteEmployee(id: string): Promise<boolean>;
     findAllEmployees(): Promise<Employee[]>;
+    findEmployeeByUsername(username: string): Promise<Employee | null>;
 }

@@ -9,6 +9,7 @@ import { Badge } from "../components/badge.js";
 import { Alert, AlertDescription, AlertTitle } from "../components/alert.js";
 import { LogOut, CheckCircle } from "lucide-react";
 import { toast } from 'sonner';
+import employeeService from "../services/employeeService";
 
 
 const CostureroDashboard = () =>{
@@ -28,8 +29,10 @@ const CostureroDashboard = () =>{
     const loadOrders = async () => {
         if (!user) return;
         try {
-            const response = await orderService.getOrdersByEmployeeId(user.id);
-            setOrders(response);
+            const userLogged = await employeeService.getEmployeeByUsername(user.username);
+            const response = await orderService.getOrdersByEmployeeId(userLogged.id);
+            setOrders(response.orders);
+            setIsLoading(false);
         } catch (error) {
             console.error('Error al cargar las órdenes:', error);
             setIsLoading(false);
@@ -54,7 +57,7 @@ const CostureroDashboard = () =>{
     const getStatusBadge = (status: string) => {
         const statusConfig = {
         pending: { label: 'Pendiente', variant: 'outline' as const },
-        in_process: { label: 'En Proceso', variant: 'warning' as const },
+        'in process': { label: 'En Proceso', variant: 'warning' as const },
         completed: { label: 'Completado', variant: 'success' as const },
         };
         const config = statusConfig[status as keyof typeof statusConfig];

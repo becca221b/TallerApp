@@ -7,10 +7,15 @@ const getEmployees = async () => {
     return response.data;
 };
 
+const getEmployeeByUsername = async (username: string) => {
+    const response = await axiosClient.get(`/employees/username/${username}`);
+    return response.data;
+};
+
 
 
 //Exportar las funciones
 export default {
     getEmployees,
-    
+    getEmployeeByUsername
 };

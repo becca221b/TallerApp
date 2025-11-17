@@ -122,6 +122,25 @@ export class EmployeeController {
             res.status(500).json({ error: 'Internal server error while fetching employees' });
         }
     }
+
+    async getEmployeeByUsername(req: Request, res: Response) {
+        try {
+            const username = req.params.username;
+            if (!username) {
+                return res.status(400).json({ error: 'Username is required' });
+            }
+
+            const employee = await this.employeeRepository.findEmployeeByUsername(username);
+            if (!employee) {
+                return res.status(404).json({ error: 'Employee not found' });
+            }
+
+            res.status(200).json(employee);
+        } catch (error) {
+            console.error('Error getting employee by username:', error);
+            res.status(500).json({ error: 'Internal server error while fetching employee' });
+        }
+    }
 }
 
 // Factory function to create the controller with dependencies

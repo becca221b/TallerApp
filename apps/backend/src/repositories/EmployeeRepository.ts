@@ -30,4 +30,9 @@ export class EmployeeRepository implements EmployeeService {
         const employees = await EmployeeModel.find().exec();
         return employees.map(emp => emp.toJSON() as Employee);
     }
+
+    async findEmployeeByUsername(username: string): Promise<Employee | null>{
+        const employee = await EmployeeModel.findOne({username}).exec();
+        return employee ? employee.toJSON() as Employee : null;
+    }
 }

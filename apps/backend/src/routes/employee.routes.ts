@@ -16,5 +16,6 @@ router.get("/:id", authenticate, authorize("supervisor"), (req, res) => employee
 router.put("/:id", authenticate, authorize("supervisor"), (req, res) => employeeController.updateEmployee(req, res));
 router.delete("/:id", authenticate, authorize("supervisor"), (req, res) => employeeController.deleteEmployee(req, res));
 router.get("/type/:type", authenticate, authorize("supervisor"), (req, res) => employeeController.getEmployeesByType(req, res));
+router.get("/username/:username", authenticate, (req, res) => employeeController.getEmployeeByUsername(req, res));
 
 export default router;

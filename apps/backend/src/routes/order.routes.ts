@@ -2,7 +2,7 @@ import { Router } from "express";
 import { OrderController } from "../controllers/order-controller";
 import { OrderRepository } from "../repositories/OrderRepository";
 import { GarmentRepository } from "../repositories/GarmentRepository";
-import { EmployeeRepository } from "../repositories/EmployRepository";
+import { EmployeeRepository } from "../repositories/EmployeeRepository";
 import { authenticate, authorize } from "src/config/jwt";
 
 const router = Router();

@@ -4,7 +4,7 @@ import { OrderRepository } from "../repositories/OrderRepository";
 import { GarmentRepository } from "../repositories/GarmentRepository";
 import { AssignOrder } from "@/domain/use-cases/assign-order";
 import { UpdateOrderStatus } from "@/domain/use-cases/update-order-status";
-import { EmployeeRepository } from "../repositories/EmployRepository";
+import { EmployeeRepository } from "../repositories/EmployeeRepository";
 
 export class OrderController {
 

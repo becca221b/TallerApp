@@ -1,73 +1,91 @@
-# React + TypeScript + Vite
+# TallerApp Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend moderno basado en React para TallerApp, un sistema de gestión de talleres.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologías
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework**: React 19
+- **Herramienta de Construcción**: Vite
+- **Tipado**: TypeScript
+- **Estilos**: Módulos CSS
+- **Gestión de Estado**: React Query
+- **Enrutamiento**: React Router v7
+- **Componentes UI**: Radix UI, Lucide Icons
+- **Formularios**: React Hook Form
+- **Pruebas**: Vitest, Storybook
 
-## React Compiler
+## 📁 Estructura del Proyecto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── api/              # Configuración del cliente API
+├── assets/           # Recursos estáticos (imágenes, fuentes, etc.)
+├── components/       # Componentes UI reutilizables
+├── contexts/         # Contextos de React para gestión de estado
+├── dtos/             # Tipos de objetos de transferencia de datos
+├── lib/              # Funciones y utilidades
+├── pages/            # Componentes de páginas
+│   ├── CostureroDashboard.tsx
+│   ├── Login.tsx
+│   ├── NotFound.tsx
+│   └── SupervisorDashboard.tsx
+└── services/         # Lógica de negocio y servicios API
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠 Configuración y Desarrollo
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Instalar Dependencias**
+   ```bash
+   npm install
+   # o
+   yarn
+   # o
+   pnpm install
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Variables de Entorno**
+   Crea un archivo `.env` en la raíz con las siguientes variables:
+   ```
+   VITE_API_URL=http://localhost:3000
+   ```
+
+3. **Iniciar Servidor de Desarrollo**
+   ```bash
+   npm run dev
+   # o
+   yarn dev
+   # o
+   pnpm dev
+   ```
+
+4. **Ejecutar Pruebas**
+   ```bash
+   npm test
+   # o
+   yarn test
+   # o
+   pnpm test
+   ```
+
+5. **Ejecutar Storybook**
+   ```bash
+   npm run storybook
+   # o
+   yarn storybook
+   # o
+   pnpm storybook
+   ```
+
+## 🌟 Características
+
+- Costurero Dashboard
+- Supervisor Dashboard
+- Login
+- Not Found
+
+## 🧩 Dependencias Principales
+
+- tanstack/react-query: Data fetching and state management
+- react-router-dom: Client side routing
+- lucid-react: Icons
+- sonner: Toast notifications

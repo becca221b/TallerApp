@@ -14,7 +14,7 @@ describe('POST /api/auth/register', () => {
                 name: 'Test Login',
                 email: 'testlogin@example.com',
                 password: 'testpass123',
-                role: 'employee'
+                role: 'costurero'
             });
             
         expect(registerResponse.status).toBe(201);

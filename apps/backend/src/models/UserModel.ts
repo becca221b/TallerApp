@@ -11,7 +11,7 @@ const UserSchema = new Schema({
         maxlength: 50
     },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'employee'], required: true },
+    role: { type: String, enum: ['supervisor', 'costurero'], required: true },
     email: { 
         type: String,
         required: false,

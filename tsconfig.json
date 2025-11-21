@@ -2,7 +2,8 @@
   "files": [],
   "references": [
     { "path": "./domain" },
-    { "path": "./apps/backend" }
+    { "path": "./apps/backend" },
+    { "path": "./apps/frontend" }
   ],
   "compilerOptions": {
     "target": "ESNext",

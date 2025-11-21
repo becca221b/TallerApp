@@ -21,8 +21,14 @@ export class UpdateOrderStatus {
             throw new Error("Unauthorized to update this order");
         }
         order.status = newStatus as OrderStatus;
-        await this.orderService.updateOrder(orderId, order);
+        console.log('Updating order with status:', order.status);
+        const updatedOrder = await this.orderService.updateOrder(orderId, { status: order.status });
+        console.log('Updated order from DB:', updatedOrder);
 
-        return order;
+        if (!updatedOrder) {
+            throw new Error("Failed to update order");
+        }
+
+        return updatedOrder;
     }
 }

@@ -10,12 +10,9 @@ export class OrderRepository implements OrderService {
     }
 
     async findOrderById(id: string): Promise<Order | null> {
-        const order = await OrderModel.findById(id).lean();
+        const order = await OrderModel.findOne({ id }).lean();
         if (!order) return null;
-        return {
-            ...order,
-            id: order._id.toString()
-        };
+        return order as Order;
     }
 
     async findOrdersByEmployeeId(employeeId: string): Promise<Order[]> {
@@ -34,7 +31,7 @@ export class OrderRepository implements OrderService {
     }
 
     async updateOrder(id: string, order: Partial<Order>): Promise<Order | null> {
-        const updatedOrder = await OrderModel.findByIdAndUpdate(id, order);
+        const updatedOrder = await OrderModel.findOneAndUpdate({ id }, order, { new: true });
         return updatedOrder;
     }
 

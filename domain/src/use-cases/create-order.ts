@@ -4,7 +4,7 @@ import { Order, OrderStatus } from "../entities/Order";
 import { OrderDetail, orderSize } from "../entities/OrderDetail";
 
 export interface CreateOrderDetailParams {
-    garmentId: string;
+    id: string;
     quantity: number;
     size: orderSize;
     sex: 'F' | 'M';
@@ -29,13 +29,16 @@ export class CreateOrder {
      * Step 1: Create OrderDetail independently
      */
     async createOrderDetail(params: CreateOrderDetailParams): Promise<OrderDetail> {
-        const unitPrice = await this.garmentService.findGarmentPriceById(params.garmentId);
+        console.log('createOrderDetail params:', params);
+        console.log('params.id:', params.id);
+        const unitPrice = await this.garmentService.findGarmentPriceById(params.id);
+        console.log('unitPrice:', unitPrice);
         if(unitPrice === null) {
             throw new Error('Garment not found');
         }
         const orderDetail: OrderDetail = {
             id: this.generateId(),
-            garmentId: params.garmentId,
+            garmentId: params.id,
             quantity: params.quantity,
             size: params.size,
             sex: params.sex,

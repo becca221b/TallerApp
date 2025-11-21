@@ -73,26 +73,19 @@ npm start    # Modo producción
 # Documentación de la API - TallerApp (Backend)
 
 ## 📚 Endpoints principales
-Método	Ruta	        Descripción
-POST    /api/auth/register	Registro de nuevo usuario
-POST    /api/auth/login	Autenticación JWT
-POST    /api/orders	    Crear orden
-POST    /api/orders/assign	Asignar orden a empleado
-PUT     /api/orders/:id	Actualizar orden
-
 
 ### Autenticación
-| Method | Endpoint       | Description                  | Auth Required |
-|--------|----------------|------------------------------|---------------|
-| POST   | /auth/register | User registration            | No            |
-| POST   | /auth/login    | User login (JWT token)       | No            |
+| Método | Ruta | Descripción | Requiere Autenticación |
+|--------|------|-------------|------------------------|
+| POST   | /api/auth/register | Registro de nuevo usuario | No |
+| POST   | /api/auth/login | Inicio de sesión (obtener token JWT) | No |
 
-#### `POST /auth/register`
+#### `POST /api/auth/register`
 Registro de nuevo usuario
 ```json
 // Request Body
 {
-  "username": "rebecaozuna",
+  "username": "usuario123",
   "password": "contraseñaSegura123"
 }
 
@@ -101,18 +94,18 @@ Registro de nuevo usuario
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "507f1f77bcf86cd799439011",
-    "username": "testuser",
-    "role": "Costurero"
+    "username": "usuario123",
+    "role": "costurero"
   }
 }
 ```
 
-#### `POST /auth/login`
+#### `POST /api/auth/login`
 Inicio de sesión
 ```json
 // Request Body
 {
-  "username": "rebecaozuna",
+  "username": "usuario123",
   "password": "contraseñaSegura123"
 }
 
@@ -120,121 +113,276 @@ Inicio de sesión
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "id": "65a1b2c3d4e5f6g7h8i9j0k",
-    "email": "usuario@taller.com",
-    "role": "technician"
+    "id": "507f1f77bcf86cd799439011",
+    "username": "usuario123",
+    "role": "costurero"
   }
 }
 ```
 
-👥 Orders
+### Clientes
+| Método | Ruta | Descripción | Requiere Autenticación | Permisos Requeridos |
+|--------|------|-------------|------------------------|---------------------|
+| POST   | /api/customers | Crear nuevo cliente | Sí | supervisor |
+| GET    | /api/customers | Obtener todos los clientes | Sí | - |
+| GET    | /api/customers/:id | Obtener cliente por ID | Sí | - |
 
+#### `POST /api/customers`
+Crear nuevo cliente
+```json
+// Request Body
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "phone": "+541112345678",
+  "address": "Calle Falsa 123"
+}
 
-### Autenticación
-| Method | Endpoint       | Description                  | Auth Required |
-|--------|----------------|------------------------------|---------------|
-| POST   | /orders        | Create Order                 | Yes           |
-| POST   | /orders/assign | Assign Order to Employee     | Yes           |
-| PUT    | /orders/:id    | Update Order                 | Yes           |
+// Response (201 Created)
+{
+  "id": "507f1f77bcf86cd799439011",
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "phone": "+541112345678",
+  "address": "Calle Falsa 123",
+  "createdAt": "2025-11-21T16:30:00.000Z"
+}
+```
 
-#### `POST /orders`
-Create Order
-POST /api/orders (Requires Supervisor role)
-
-Request:
+#### `GET /api/customers`
+Obtener todos los clientes
 
 ```json
+// Response (200 OK)
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "Juan Pérez",
+    "email": "juan@example.com",
+    "phone": "+541112345678",
+    "address": "Calle Falsa 123"
+  },
+  // ... más clientes
+]
+```
+
+#### `GET /api/customers/:id`
+Obtener cliente por ID
+
+```json
+// Response (200 OK)
+{
+  "id": "507f1f77bcf86cd799439011",
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "phone": "+541112345678",
+  "address": "Calle Falsa 123",
+  "createdAt": "2025-11-21T16:30:00.000Z"
+}
+```
+
+### Empleados
+| Método | Ruta | Descripción | Requiere Autenticación | Permisos Requeridos |
+|--------|------|-------------|------------------------|---------------------|
+| POST   | /api/employees | Crear nuevo empleado | Sí | supervisor |
+| GET    | /api/employees | Obtener todos los empleados | Sí | supervisor |
+| GET    | /api/employees/:id | Obtener empleado por ID | Sí | supervisor |
+| PUT    | /api/employees/:id | Actualizar empleado | Sí | supervisor |
+| DELETE | /api/employees/:id | Eliminar empleado | Sí | supervisor |
+| GET    | /api/employees/type/:type | Obtener empleados por tipo | Sí | supervisor |
+| GET    | /api/employees/username/:username | Obtener empleado por nombre de usuario | Sí | - |
+
+#### `POST /api/employees`
+Crear nuevo empleado
+```json
+// Request Body
+{
+  "name": "María",
+  "surname": "García",
+  "documentNumber": "40123456",
+  "phone": "+541112345679",
+  "employeeType": "costurero"
+}
+
+// Response (201 Created)
+{
+  "id": "507f1f77bcf86cd799439012",
+  "name": "María",
+  "surname": "García",
+  "documentNumber": "40123456",
+  "phone": "+541112345679",
+  "isActive": true,
+  "employeeType": "costurero",
+  "username": "MaríaGarcía",
+  "password": "40123456"
+}
+```
+
+#### `GET /api/employees/username/:username`
+Obtener empleado por nombre de usuario
+
+```json
+// Response (200 OK)
+{
+  "id": "507f1f77bcf86cd799439012",
+  "name": "María",
+  "surname": "García",
+  "documentNumber": "40123456",
+  "phone": "+541112345679",
+  "isActive": true,
+  "employeeType": "costurero",
+  "username": "MaríaGarcía"
+}
+```
+
+### Prendas
+| Método | Ruta | Descripción | Requiere Autenticación | Permisos Requeridos |
+|--------|------|-------------|------------------------|---------------------|
+| POST   | /api/garments | Crear nueva prenda | Sí | supervisor |
+| GET    | /api/garments | Obtener todas las prendas | Sí | - |
+| GET    | /api/garments/:id | Obtener prenda por ID | Sí | - |
+
+#### `POST /api/garments`
+Crear nueva prenda
+```json
+// Request Body
+{
+  "name": "shirt",
+  "color": "azul",
+  "description": "Camisa de algodón manga larga",
+  "price": 2500,
+  "imageUrl": "https://example.com/shirt.jpg",
+  "neck": "cuello redondo",
+  "cuff": "manga larga",
+  "flap": "sin solapa",
+  "zipper": "sin cierre",
+  "pocket": "sin bolsillo",
+  "waist": "recto"
+}
+
+// Response (201 Created)
+{
+  "id": "507f1f77bcf86cd799439013",
+  "name": "shirt",
+  "color": "azul",
+  "description": "Camisa de algodón manga larga",
+  "price": 2500,
+  "imageUrl": "https://example.com/shirt.jpg",
+  "neck": "cuello redondo",
+  "cuff": "manga larga",
+  "flap": "sin solapa",
+  "zipper": "sin cierre",
+  "pocket": "sin bolsillo",
+  "waist": "recto"
+}
+```
+
+#### `GET /api/garments`
+Obtener todas las prendas
+
+```json
+// Response (200 OK)
+[
+  {
+    "id": "507f1f77bcf86cd799439013",
+    "name": "shirt",
+    "color": "azul",
+    "description": "Camisa de algodón manga larga",
+    "price": 2500,
+    "imageUrl": "https://example.com/shirt.jpg",
+    "neck": "cuello redondo",
+    "cuff": "manga larga",
+    "flap": "sin solapa",
+    "zipper": "sin cierre",
+    "pocket": "sin bolsillo",
+    "waist": "recto"
+  },
+  // ... más prendas
+]
+```
+
+### Órdenes
+| Método | Ruta | Descripción | Requiere Autenticación | Permisos Requeridos |
+|--------|------|-------------|------------------------|---------------------|
+| POST   | /api/orders | Crear nueva orden | Sí | supervisor |
+| PUT    | /api/orders/assign | Asignar orden a empleado | Sí | supervisor |
+| GET    | /api/orders/employee/:employeeId | Obtener órdenes por empleado | Sí | - |
+| PUT    | /api/orders/update-status | Actualizar estado de orden | Sí | - |
+| GET    | /api/orders | Obtener todas las órdenes | Sí | - |
+
+#### `POST /api/orders`
+Crear nueva orden
+```json
+// Request Body
 {
   "customerId": "507f1f77bcf86cd799439011",
-  "employeeId": "507f1f77bcf86cd799439012",
   "garments": [
     {
       "garmentId": "507f1f77bcf86cd799439013",
       "quantity": 2,
-      "price": 50,
+      "price": 2500,
       "size": "M",
-      "sex": "M",
-      "subtotal": 100
+      "sex": "M"
     }
   ],
-  "deliveryDate": "2025-12-31T23:59:59.999Z"
+  "totalPrice": 5000,
+  "deliveryDate": "2025-12-15T18:00:00.000Z"
 }
-```
-Success Response (201 Created):
 
-```json
+// Response (201 Created)
 {
   "id": "507f1f77bcf86cd799439014",
   "customerId": "507f1f77bcf86cd799439011",
-  "status": "pending",
-  "totalPrice": 100,
-  "createdAt": "2025-10-31T18:30:00.000Z"
+  "status": "pendiente",
+  "totalPrice": 5000,
+  "deliveryDate": "2025-12-15T18:00:00.000Z",
+  "createdAt": "2025-11-21T16:30:00.000Z"
 }
 ```
 
-Assign Order
-POST /api/orders/assign (Requires Supervisor role)
-
-Request:
-
+#### `PUT /api/orders/assign`
+Asignar orden a empleado
 ```json
+// Request Body
 {
   "orderId": "507f1f77bcf86cd799439014",
   "employeeId": "507f1f77bcf86cd799439012",
   "assignedBySupervisorId": "507f1f77bcf86cd799439015"
 }
-Success Response (200 OK):
 
-json
+// Response (200 OK)
 {
-  "message": "Order assigned successfully",
+  "message": "Orden asignada exitosamente",
   "order": {
     "id": "507f1f77bcf86cd799439014",
-    "employeeId": "507f1f77bcf86cd799439012",
-    "status": "in_process"
+    "status": "en_proceso",
+    "assignedTo": "507f1f77bcf86cd799439012"
   }
 }
-Get Orders by Employee
-GET /api/orders/employee/:employeeId (Requires Authentication)
+```
 
-Success Response (200 OK):
-
-json
-{
-  "orders": [
-    {
-      "id": "507f1f77bcf86cd799439014",
-      "customerId": "507f1f77bcf86cd799439011",
-      "status": "in_process",
-      "totalPrice": 100,
-      "createdAt": "2025-10-31T18:30:00.000Z"
-    }
-  ]
-}
-Update Order Status
-POST /api/orders/update-status (Requires Authentication)
-
-Request:
-
-json
+#### `PUT /api/orders/update-status`
+Actualizar estado de orden
+```json
+// Request Body
 {
   "orderId": "507f1f77bcf86cd799439014",
-  "newStatus": "completed",
-  "employeeId": "507f1f77bcf86cd799439012"
+  "status": "completada",
+  "updatedBy": "507f1f77bcf86cd799439012"
 }
-Success Response (200 OK):
 
-json
+// Response (200 OK)
 {
-  "message": "Order status updated successfully",
+  "message": "Estado de la orden actualizado exitosamente",
   "order": {
     "id": "507f1f77bcf86cd799439014",
-    "status": "completed",
-    "updatedAt": "2025-10-31T19:30:00.000Z"
+    "status": "completada",
+    "updatedAt": "2025-11-21T17:30:00.000Z"
   }
 }
+```
 
-
-
-
-
+### Notas:
+- Todas las rutas (excepto /api/auth/*) requieren autenticación mediante JWT
+- Los endpoints marcados con 'supervisor' en 'Permisos Requeridos' solo pueden ser accedidos por usuarios con rol de supervisor
+- El token JWT debe incluirse en el header `Authorization: Bearer <token>`

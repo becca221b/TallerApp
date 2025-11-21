@@ -1,4 +1,4 @@
-export type employeeType = 'Costurero' | 'Cortador' | 'Supervisor';
+export type employeeType = 'costurero' | 'cortador' | 'supervisor';
 
 export interface Employee {
     readonly id: string,

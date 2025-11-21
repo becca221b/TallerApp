@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 interface RegisterUserDTO {
   username: string;
   password: string;
-  role: "supervisor" | "empleado";
+  role: "supervisor" | "costurero";
 }
 
 export class RegisterUser {

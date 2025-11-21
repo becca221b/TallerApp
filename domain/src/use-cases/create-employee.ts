@@ -29,7 +29,7 @@ export class CreateEmployee {
         if(!employee.employeeType || employee.employeeType.trim() === '') {
             throw new Error('Employee type is required');
         }
-        if(employee.employeeType!= 'Cortador' && employee.employeeType!= 'Costurero' && employee.employeeType!= 'Supervisor'){{
+        if(employee.employeeType!= 'cortador' && employee.employeeType!= 'costurero' && employee.employeeType!= 'supervisor'){{
             throw new Error('Employee type must be Cortador, Costurero, or Supervisor');
         }}
     }

@@ -13,7 +13,7 @@ describe('Create an employee',()=>{
             documentNumber: '12345678',
             phone: '555-5555',
             isActive: true,
-            employeeType: 'Costurero',
+            employeeType: 'costurero',
             username: '',
             password: ''
         }
@@ -33,7 +33,7 @@ describe('Create an employee',()=>{
             documentNumber: '87654321',
             surname: 'Smith',
             phone: '555-1234',
-            employeeType: 'Cortador',
+            employeeType: 'cortador',
             
         }
 

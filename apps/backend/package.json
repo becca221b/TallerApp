@@ -5,7 +5,8 @@
   "scripts": {
     "test": "vitest",
     "dev": "tsx src/server.ts",
-    "start": "node dist/backend/server.js"
+    "start": "node dist/backend/server.js",
+    "watch": "tsx watch src/server.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

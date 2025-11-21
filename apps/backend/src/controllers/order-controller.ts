@@ -4,7 +4,7 @@ import { OrderRepository } from "../repositories/OrderRepository";
 import { GarmentRepository } from "../repositories/GarmentRepository";
 import { AssignOrder } from "@/domain/use-cases/assign-order";
 import { UpdateOrderStatus } from "@/domain/use-cases/update-order-status";
-import { EmployeeRepository } from "../repositories/EmployRepository";
+import { EmployeeRepository } from "../repositories/EmployeeRepository";
 
 export class OrderController {
 
@@ -13,10 +13,16 @@ export class OrderController {
         
     async createOrder(req: Request, res: Response):Promise<void> {
          try {
-            const { customerId, employeeId, deliveryDate, garments } = req.body;
+            const { customerId, employeeId, deliveryDate, orderDetails } = req.body;
             
-            if (!customerId || !employeeId || !deliveryDate || !Array.isArray(garments)) {
-                throw new Error('Missing required fields. Required: customerId, employeeId, deliveryDate, garments[]');
+            if (!customerId) {
+                throw new Error('Missing required field: customerId');
+            }
+            if (!deliveryDate) {
+                throw new Error('Missing required field: deliveryDate');
+            }
+            if (!Array.isArray(orderDetails) || orderDetails.length === 0) {
+                throw new Error('Invalid or empty order details array');
             }
 
             const createOrder = new CreateOrder(
@@ -24,14 +30,14 @@ export class OrderController {
                 this.garmentRepository
             );
 
-            const orderDetails = await Promise.all(
-            garments.map(garment => 
+            const orderDetail = await Promise.all(
+            orderDetails.map(garment => 
                 createOrder.createOrderDetail({
-                    garmentId: garment.garmentId,
+                    id: garment.id,
                     quantity: garment.quantity,
                     size: garment.size,
                     sex: garment.sex,
-                    subtotal: garment.subtotal
+                    subtotal: garment.price
                 })
             )
             );
@@ -72,10 +78,19 @@ export class OrderController {
 
     async updateOrderStatus(req: Request, res: Response):Promise<void> {
         try {
-            const { orderId, newStatus, employeeId } = req.body;
+            const { orderId, status, employeeId } = req.body;
             
-            const order = await new UpdateOrderStatus(this.orderRepository, this.employeeRepository).execute(orderId, newStatus, employeeId);
+            const order = await new UpdateOrderStatus(this.orderRepository, this.employeeRepository).execute(orderId, status, employeeId);
             res.status(200).json({ message: "Order status updated successfully", order });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getOrders(req: Request, res: Response):Promise<void> {
+        try {
+            const orders = await this.orderRepository.findAllOrders();
+            res.status(200).json({ orders });
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }

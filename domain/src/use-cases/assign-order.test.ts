@@ -17,7 +17,7 @@ describe('AssignOrder Use Case', () => {
         documentNumber: '12345678',
         phone: '555-0001',
         isActive: true,
-        employeeType: 'Supervisor',
+        employeeType: 'supervisor',
         username: 'maria.garcia',
         password: 'password123'
     };
@@ -29,7 +29,7 @@ describe('AssignOrder Use Case', () => {
         documentNumber: '87654321',
         phone: '555-0002',
         isActive: true,
-        employeeType: 'Costurero'
+        employeeType: 'costurero'
     };
 
     const mockInactiveCosturero: Employee = {
@@ -39,7 +39,7 @@ describe('AssignOrder Use Case', () => {
         documentNumber: '11223344',
         phone: '555-0003',
         isActive: false,
-        employeeType: 'Costurero'
+        employeeType: 'costurero'
     };
 
     const mockCortador: Employee = {
@@ -49,7 +49,7 @@ describe('AssignOrder Use Case', () => {
         documentNumber: '55667788',
         phone: '555-0004',
         isActive: true,
-        employeeType: 'Cortador'
+        employeeType: 'cortador'
     };
 
     const mockPendingOrder: Order = {
@@ -397,7 +397,7 @@ describe('AssignOrder Use Case', () => {
                 documentNumber: '99887766',
                 phone: '555-0005',
                 isActive: true,
-                employeeType: 'Costurero'
+                employeeType: 'costurero'
             };
 
             mockEmployeeService = createMockEmployeeService([mockSupervisor, mockCosturero, anotherCosturero]);

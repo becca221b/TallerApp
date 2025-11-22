@@ -17,6 +17,7 @@ pnpm-debug.log*
 # Archivos de entorno
 .env
 .env.*.local
+secrets/
 
 # Configuración del editor / sistema
 .vscode/

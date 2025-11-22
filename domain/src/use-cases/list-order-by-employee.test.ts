@@ -17,8 +17,8 @@ describe("List Order By Employee Use Case", () => {
     let orders: Order[];
 
     employees = [
-      { id: "emp1", name: "Alice", surname: "Wonder", documentNumber: "123", phone: "555-1234", employeeType: "Costurero" },
-      { id: "emp2", name: "Bob", surname: "Builder", documentNumber: "456", phone: "555-5678", employeeType: "Cortador" },
+      { id: "emp1", name: "Alice", surname: "Wonder", documentNumber: "123", phone: "555-1234", employeeType: "costurero" },
+      { id: "emp2", name: "Bob", surname: "Builder", documentNumber: "456", phone: "555-5678", employeeType: "cortador" },
     ];
     garments = [
         { id: "gar1", name: "shirt", color: "red", price: 20, imageUrl: "", neck: "V", cuff: "red", flap: "", zipper: "2", pocket: "front", waist: "red" },

@@ -19,7 +19,7 @@ describe("LoginUser Use Case", () => {
             id: "1",
             username: "testuser",
             passwordHash: "$2b$10$abcdefghijklmnopqrstuvwxyz",  // Mocked bcrypt hash
-            role: "admin"
+            role: "supervisor"
         };
 
         // Mock findUserByName to return our test user
@@ -39,7 +39,7 @@ describe("LoginUser Use Case", () => {
             id: "1",
             username: "testuser",
             passwordHash: "$2b$10$abcdefghijklmnopqrstuvwxyz",
-            role: "admin"
+            role: "supervisor"
         };
 
         // Mock findUserByName to return the user

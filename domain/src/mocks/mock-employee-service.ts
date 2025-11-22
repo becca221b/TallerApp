@@ -34,6 +34,9 @@ export const createMockEmployeeService = (
         }),
         findAllEmployees: vi.fn().mockImplementation(async () => {
             return [...employees];
+        }),
+        findEmployeeByUsername: vi.fn().mockImplementation(async (username: string) => {
+            return employees.find(employee => employee.username === username) || null;
         })
     };
 };

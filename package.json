@@ -4,12 +4,14 @@
   "version": "1.0.0",
   "workspaces": [
     "domain",
-    "apps/*"
+    "apps/backend",
+    "apps/frontend"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:domain && npm run build:backend && npm run build:frontend",
     "build:domain": "tsc --build domain",
-    "build:backend": "tsc --build backend",
+    "build:backend": "tsc --build apps/backend",
+    "build:frontend": "tsc --build apps/frontend",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "test": "vitest"

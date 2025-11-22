@@ -3,7 +3,7 @@ import { OrderController } from "../controllers/order-controller";
 import { OrderRepository } from "../repositories/OrderRepository";
 import { GarmentRepository } from "../repositories/GarmentRepository";
 import { EmployeeRepository } from "../repositories/EmployeeRepository";
-import { authenticate, authorize } from "src/config/jwt";
+import { authenticate, authorize } from "../config/jwt";
 
 const router = Router();
 

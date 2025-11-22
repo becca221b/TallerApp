@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { GarmentController } from "../controllers/garment-controller";
-import { authenticate, authorize } from "src/config/jwt";
+import { authenticate, authorize } from "../config/jwt";
 import { GarmentRepository } from "../repositories/GarmentRepository";
 
 const router = Router();

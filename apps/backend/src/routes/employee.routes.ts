@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { EmployeeController } from "../controllers/employee-controller";
 import { EmployeeRepository } from "../repositories/EmployeeRepository";
-import { authenticate, authorize } from "src/config/jwt";
+import { authenticate, authorize } from "../config/jwt";
 
 const router = Router();
 

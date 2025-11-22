@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { CustomerController } from "../controllers/customer-controller";
-import { authenticate, authorize } from "src/config/jwt";
+import { authenticate, authorize } from "../config/jwt";
 import { CustomerRepository } from "../repositories/CustomerRepository";
 
 const router = Router();

@@ -9,12 +9,12 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "paths": {
-        "@/domain/*": ["../../domain/src/*"],
-        "@/domain": ["../../domain/src"],
-        "@/backend/*": ["../backend/src/*"],
-        "@/backend": ["../backend/src"]
+      "@/*": ["./src/*"],
+      "@domain/*": ["../../domain/src/*"],
+      "@/domain/*": ["../../domain/src/*"]
     }
   },
-  "references": [{ "path": "../../domain" }, { "path": "../backend" }],
-  "include": ["src"]
+  "references": [{ "path": "../../domain" }],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

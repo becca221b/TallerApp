@@ -1,0 +1,44 @@
+name: taller_app
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: taller_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: taller_backend
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_URI_FILE: "/run/secrets/mongo_uri"
+    secrets:
+      - mongo_uri
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: taller_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+secrets:
+  mongo_uri:
+    file: ./secrets/mongo_uri.txt
+
+volumes:
+  mongo_data:

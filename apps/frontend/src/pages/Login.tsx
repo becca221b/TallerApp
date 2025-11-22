@@ -99,8 +99,8 @@ const Login = () => {
 
               <div className="text-sm text-center text-muted-foreground space-y-1 pt-4 border-t">
                 <p className="font-medium">Usuarios de prueba:</p>
-                <p>Costurero: <code className="bg-muted px-2 py-1 rounded">costurero</code></p>
-                <p>Supervisor: <code className="bg-muted px-2 py-1 rounded">supervisor</code></p>
+                <p>Costurero: <code className="bg-muted px-2 py-1 rounded">costurero: diegofernandez</code></p>
+                <p>Supervisor: <code className="bg-muted px-2 py-1 rounded">supervisor: pepaperez</code></p>
                 <p>password: 123456</p>
               </div>
             </form>
